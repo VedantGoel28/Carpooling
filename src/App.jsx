@@ -1,19 +1,18 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
 import "./App.css";
-import { SignedIn, SignedOut, SignIn, UserButton } from "@clerk/clerk-react";
+import { useNavigate, Routes, Route } from "react-router-dom";
+import RegisterScreen from "./screens/RegisterScreen";
+import Signin from "./screens/Signin";
+import SignupScreen from "./screens/SignupScreen";
+import HomeScreen from "./screens/HomeScreen";
 
 function App() {
   return (
-    <header>
-      <SignedOut>
-        <SignIn />
-      </SignedOut>
-      <SignedIn>
-        <UserButton />
-      </SignedIn>
-    </header>
+      <Routes>
+        <Route path="/" element={<RegisterScreen />} />
+        <Route path="/signin" element={<Signin />} />
+        <Route path="/signup" element={<SignupScreen />} />
+        <Route path='/home' element={<HomeScreen/>}/>
+      </Routes>
   );
 }
 

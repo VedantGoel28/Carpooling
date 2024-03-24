@@ -1,0 +1,70 @@
+.container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: 100vh;
+    height: 100vh;
+    width: 100vw;
+}
+
+.app-image {
+    background: url("../assets/blockchainapp.webp");
+    background-size: 100vh 50vw;
+    background-repeat: no-repeat;
+}
+
+.btn {
+    background-color: rgba(195, 0, 255, 0.699);
+    padding: 1.25rem 2rem;
+    border-radius: 50px;
+    border: 1px solid rgba(0, 0, 0, 0.274);
+    cursor: pointer;
+    color: white;
+    margin: 2rem;
+    font-size: 1rem;
+}
+
+.wlc-msg h1,
+h3 {
+    color: aquamarine;
+    margin: 1rem;
+}
+
+.wlc-msg h1 {
+    font-size: 4rem;
+}
+
+.wlc-msg h3 {
+    font-size: 1rem;
+    text-align: center;
+}
+
+.poppins-regular {
+    font-family: "Poppins", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.btn:hover {
+    background-color: aqua;
+    color: black;
+}
+
+.dancing-script-regular {
+    font-family: "Dancing Script", cursive;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.app-options {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.btns {
+    display: flex;
+    width: 50vw;
+    justify-content: center;
+}
