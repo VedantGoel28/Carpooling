@@ -15,7 +15,7 @@ const RegisterScreen = () => {
       <div className="app-image"></div>
       <div className="app-options">
         <div className="wlc-msg">
-          <h1 className="dancing-script-regular">Welcome to Carpooling</h1>
+          <h1 className="poppins-regular">Welcome to Carpooling</h1>
         </div>
         <div className="btns">
           <button

@@ -2,16 +2,29 @@ import React from "react";
 import { SignUp } from "@clerk/clerk-react";
 import "../styles/signup.css";
 import { useNavigate } from "react-router-dom";
+import { useClerk } from "@clerk/clerk-react";
 
 const SignupScreen = () => {
   const navigate = useNavigate();
-  const handleAfterSignUp = () => {
-    navigate("/signin");
+  const handleAfterSignUp = async () => {
+    const clerk = useClerk();
+    try {
+      const metamaskid = await clerk.user.getMetadata("metamaskid");
+      await clerk.signIn({
+        email: clerk.signupFields.email,
+        password: clerk.signupFields.password,
+        metadata: { metamaskid },
+      });
+
+      navigate("/home");
+    } catch (e) {
+      console.error("Sign in or Sign up failed : ", e);
+    }
   };
   return (
     <div className="signup-container">
       <h1 className="pg-heading kanit-bold">Sign up Page</h1>
-      <SignUp afterSignUp={handleAfterSignUp} />
+      <SignUp afterSignUp={handleAfterSignUp} afterSignInUrl="/home" afterSignUpUrl="/home" />
     </div>
   );
 };

@@ -18,15 +18,9 @@ const Signin = () => {
     <div className="signinscreen-container">
       <SignedOut>
         <div className="signin-container">
-          <SignIn afterSignIn={handleAfterSignIn} />
+          <SignIn afterSignUpUrl="/home" afterSignInUrl="/home" />
         </div>
       </SignedOut>
-      <SignedIn>
-        <div className="afterSignIn-container">
-        <UserButton showName={true} afterSignOutUrl='/signin'/>
-        <HomeScreen />
-        </div>
-      </SignedIn>
     </div>
   );
 };
