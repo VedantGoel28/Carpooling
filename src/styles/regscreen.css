@@ -1,15 +1,26 @@
 .container {
-    display: grid;
+    /* display: grid;
     grid-template-columns: repeat(2, 1fr);
-    grid-template-rows: 100vh;
+    grid-template-rows: 100vh; */
+    padding: 1rem;
+    display: flex;
     height: 100vh;
     width: 100vw;
+    justify-content: space-around;
+}
+.app-image{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
 }
 
-.app-image {
-    background: url("../assets/blockchainapp.webp");
-    background-size: 100vh 50vw;
-    background-repeat: no-repeat;
+.app-image img{
+    width: 40vw;
+    object-fit: cover;
+}
+.app-image h1{
+    color: antiquewhite;
 }
 
 .btn {
@@ -20,16 +31,19 @@
     cursor: pointer;
     color: white;
     margin: 2rem;
-    font-size: 1rem;
+    font-size: 1.5rem;
 }
 
-.wlc-msg h1,
-h3 {
-    color: white;
-    margin: 1rem;
+.wlc-msg {
+    text-align: center;
+    border: 5px solid yellow;
+    background: rgb(48, 47, 47);
+    border-radius: 50rem;
 }
 
 .wlc-msg h1 {
+    color: white;
+    margin: 1rem;
     font-size: 4rem;
 }
 
@@ -39,14 +53,15 @@ h3 {
 }
 
 .poppins-regular {
-    font-family: "Poppins", sans-serif;
+    font-family: 'Josefin Sans' , sans-serif;
     font-weight: 400;
     font-style: normal;
 }
 
 .btn:hover {
-    background-color: aqua;
+    background-color: yellow;
     color: black;
+    font-weight: 1000;
 }
 
 .dancing-script-regular {
@@ -61,10 +76,41 @@ h3 {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    background: rgb(19, 17, 17);
+    border: 1px solid black;
+    border-radius: 50%;
 }
 
 .btns {
     display: flex;
     width: 50vw;
     justify-content: center;
+}
+
+@media screen and (max-width:1430px) {
+    .container{
+        flex-direction: column;
+        margin-top: 0;
+        text-align: center;
+    }
+    .app-image img{
+        margin-bottom: 5rem;
+        width: 80vw;
+    }
+    .app-image h1{
+        margin: 3rem;
+    }
+
+    .wlc-msg h1{
+        font-size: 2rem;
+    }
+    .app-options{
+        border-radius: 50rem;
+    }
+ 
+}
+
+body[data-aos-duration='3000'] [data-aos],
+[data-aos][data-aos][data-aos-duration='3000'] {
+  transition-duration: 3000ms;
 }
