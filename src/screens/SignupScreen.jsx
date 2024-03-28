@@ -15,7 +15,7 @@ const SignupScreen = () => {
         password: clerk.signupFields.password,
         metadata: { metamaskid },
       });
-
+      console.log(metamaskid);
       navigate("/home");
     } catch (e) {
       console.error("Sign in or Sign up failed : ", e);
@@ -24,7 +24,11 @@ const SignupScreen = () => {
   return (
     <div className="signup-container">
       <h1 className="pg-heading kanit-bold">Sign up Page</h1>
-      <SignUp afterSignUp={handleAfterSignUp} afterSignInUrl="/home" afterSignUpUrl="/home" />
+      <SignUp
+        afterSignUp={handleAfterSignUp}
+        afterSignInUrl="/home"
+        afterSignUpUrl="/home"
+      />
     </div>
   );
 };
