@@ -9,19 +9,14 @@ import HomeScreen from "./screens/HomeScreen";
 
 function App() {
   const user = useUser();
-  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
     if (user.isSignedIn) {
       navigate("/home");
     }
-    setLoading(false);
-  }, [user, navigate]);
+  }, [user]);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
   return (
     <Routes>
       <Route path="/" element={<RegisterScreen />} />
