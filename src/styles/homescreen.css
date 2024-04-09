@@ -1,17 +1,26 @@
+.home-container {
+    color: antiquewhite;
+}
+
 .navbar {
-    background-color: #333;
+    background-color:rgb(48, 47, 47);
     overflow: hidden;
     display: flex;
     justify-content: space-between;
-    height: 4rem;
+    height: 5rem;
     margin: 1rem 0 1rem 0;
+    padding: 0px 10px 0px 150px;
   }
 
   .user-button-container {
     color: #fff;
     text-align: center;
     text-decoration: none;
-    padding: 15px 200px 15px 200px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    padding: 15px 0px 15px 0px;
+
   }
 
   .user-button-container:hover {
@@ -21,10 +30,14 @@
 
   .navbar .company-name {
     color: #fff;
-    padding: 20px 200px 15px 200px;
+    padding: 20px 0px 15px 0px;
     font-weight: bolder;
-    font-size: 2rem;
+    font-size: 2.5rem;
   }
+
+  /* .meta-msg Link{
+    text-decoration: none;
+  } */
 
   /* Responsive CSS */
   @media screen and (max-width: 600px) {
@@ -34,6 +47,3 @@
       text-align: left;
     }
   }
-.home-container {
-    color: white;
-}

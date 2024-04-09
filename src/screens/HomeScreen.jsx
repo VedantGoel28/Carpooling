@@ -21,6 +21,8 @@ const HomeScreen = () => {
   };
   return (
     <div className="home-container">
+      <div className="navbar">
+      <div class="company-name">Ether Shuttle</div>
       <div className="user-button-container">
         <UserButton
           showName={true}
@@ -29,11 +31,13 @@ const HomeScreen = () => {
             elements: {
               userButtonOuterIdentifier: {
                 color: "white",
+                fontSize: "2rem"
               },
             },
           }}
         />
         {checkIfUserHasMetamask()}
+      </div>
       </div>
       <div className="homescreen-body">
         <h1>This is the home screen </h1>
