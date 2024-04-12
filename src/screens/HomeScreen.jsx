@@ -6,7 +6,8 @@ import img1 from "../assets/c1.png";
 import img2 from "../assets/c2.png";
 import img3 from "../assets/c3.png";
 import img4 from "../assets/c4.png";
-import img5 from "../assets/c5.png"
+import img5 from "../assets/c5.png";
+import car from "../assets/mcqueen.png";
 const HomeScreen = () => {
   const { user } = useUser();
   const primaryWeb3Wallet = user?.primaryWeb3Wallet;
@@ -56,6 +57,11 @@ const HomeScreen = () => {
     showSlides();
   }, 5000);
 
+
+  //date for form
+  const date = new Date();
+  var curDate = date.getFullYear()+"-"+date.getMonth()+"-"+date.getDate();
+  console.log(curDate)
 
   return (
     <div className="home-container">
@@ -122,9 +128,41 @@ const HomeScreen = () => {
         {/* <button class="carousel-btn prev-btn" onClick="prevSlide()">&#10094;</button>
         <button class="carousel-btn next-btn" onClick="nextSlide()">&#10095;</button> */}
       </div>
+      <hr className="rule1" data-aos = "fade-up"/>
+      <br />
+      <br />
+        <hr className="rule2" data-aos = "fade-down"/>
 
       <div className="homescreen-body">
-        <h1>This is the home screen </h1>
+        <h1 data-aos="fade-up"><u>Enter Details For The Ride</u></h1>
+        <div className="rideDetails">
+          <div className="rideImage">
+            <img src={car} alt="Car Image"/>
+          </div>
+          <div className="rideForm">
+            <h2>"Get Your Ride!"</h2>
+            <br />
+            <br />
+            <h3>Enter Source</h3>
+            <br />
+            <input type="text" name="source" placeholder="Source" className="ip"/>
+            <br />
+            <br />
+            <h3>Enter Destination</h3>
+            <br />
+            <input type="text" name="source" placeholder="Destination" className="ip"/>
+            <br />
+            <br />
+            <h3>Enter Date</h3>
+            <br />
+            <input type="date" name="date" id="date" className="ip"/>
+            <button type='submit' value='Send' className='submitBtn'>Submit</button>
+          </div>
+        </div>
+      </div>
+
+      <div className='footer'>
+        Copyright &#169; 2024 Ether-Shuttle. All rights received.
       </div>
     </div>
   );
