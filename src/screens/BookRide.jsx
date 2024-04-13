@@ -8,7 +8,7 @@ const BookRide = () => {
     googleMapsApiKey: import.meta.env.REACT_APP_GOOGLE_MAPS_API,
   });
   const center = { lat: 28.63041213046698, lng: 77.37111466441804 };
-  const caricon = "../../public/circle.png";
+  const caricon = "/circle.png";
   return (
     <div className="bookride-container">
       <AppNav />
@@ -18,10 +18,17 @@ const BookRide = () => {
         <div className="map-container">
           <GoogleMap
             center={center}
-            zoom={15}
+            zoom={16}
             mapContainerStyle={{ height: "70vh", width: "60vw" }}
           >
-            <Marker position={center} icon={{ url: caricon,scaledSize: new window.google.maps.Size(10, 10)}} opacity={0.6}></Marker>
+            <Marker
+              position={center}
+              icon={{
+                url: caricon,
+                scaledSize: new window.google.maps.Size(10, 10),
+              }}
+              opacity={0.6}
+            ></Marker>
           </GoogleMap>
         </div>
       )}

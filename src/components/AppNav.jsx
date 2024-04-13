@@ -3,11 +3,11 @@ import { UserButton } from "@clerk/clerk-react";
 
 const AppNav = () => {
   return (
-    <div className="home-head container-fluid">
-      <div className="home-app-name" style={{ marginLeft: "1rem" }}>
-        <h1>Ether Shuttle</h1>
+    <div className="navbar">
+      <div className="company-name" data-aos="slide-left">
+        Ether Shuttle
       </div>
-      <div className="user-button-container">
+      <div className="user-button-container" data-aos="slide-right">
         <UserButton
           showName={true}
           afterSignOutUrl="/"
@@ -15,8 +15,8 @@ const AppNav = () => {
             elements: {
               userButtonOuterIdentifier: {
                 color: "white",
-                fontSize: "20px",
-                textTransform: "capitalize",
+                fontSize: "2rem",
+                textTransform: "none",
               },
             },
           }}
