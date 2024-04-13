@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useEffect } from "react";
 import "../styles/signin.css";
 import { useNavigate } from "react-router-dom";
+import { useUser } from "@clerk/clerk-react";
 import {
   SignIn,
   SignUp,
@@ -11,6 +12,12 @@ import {
 import HomeScreen from "./HomeScreen";
 const Signin = () => {
   const navigate = useNavigate();
+  const user = useUser();
+  useEffect(() => {
+    if (user.isSignedIn) {
+      navigate("/home");
+    }
+  }, []);
   const handleAfterSignIn = () => {
     navigate("/home");
   };

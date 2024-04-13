@@ -2,10 +2,16 @@ import React from "react";
 import { SignUp } from "@clerk/clerk-react";
 import "../styles/signup.css";
 import { useNavigate } from "react-router-dom";
-import { useClerk } from "@clerk/clerk-react";
+import { useClerk,useUser } from "@clerk/clerk-react";
 
 const SignupScreen = () => {
   const navigate = useNavigate();
+  const user = useUser();
+  useEffect(() => {
+    if (user.isSignedIn) {
+      navigate("/home");
+    }
+  }, []);
   const handleAfterSignUp = async () => {
     const clerk = useClerk();
     try {

@@ -1,3 +1,28 @@
 .home-container {
     color: white;
 }
+
+.meta-msg{
+    background-color: aliceblue;
+    color:black;
+    padding:1rem;
+    margin-bottom:0.4rem;
+    text-align: center;
+}
+
+.user-button-container{
+    margin-right: 1.2rem;
+
+}
+
+.home-head{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1rem 0.6rem 1rem;
+    background-color: red;
+}
+
+.nav-link{
+    text-decoration: none;
+}
