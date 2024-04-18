@@ -3,5 +3,54 @@
     justify-content: center;
     align-items: center;
     width: 100vw;
-    padding-top: 2%
+    padding-top: 2%;
+    padding-bottom: 2%;
+}
+
+.ride-card {
+    background-color: white;
+    color: black;
+    margin: 1.7rem 20%;
+    padding: 1rem;
+    font-size: 1.2rem;
+    font-weight: 500;
+    border-radius: 20px;
+}
+
+.ride-card:hover {
+    background-color:rgb(53, 50, 50);
+    cursor: pointer;
+    color:white;
+}
+
+.ride-card-header {
+    display: flex;
+    justify-content: space-around;
+}
+
+.ride-card span {
+    margin-left: 0.8rem;
+    margin-right: 0.8rem;
+}
+
+.ride-card-body {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 1rem;
+}
+.ride-card-available-seats{
+    margin-left:2rem;
+}
+
+.ride-card-total-seats{
+    margin-left:0.8rem;
+}
+
+.ride-location-details{
+    display:flex;
+}
+
+.ride-seat-info{
+    display:flex;
+    justify-content:space-between;
 }
