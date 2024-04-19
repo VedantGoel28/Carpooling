@@ -21,4 +21,12 @@ app.post('/offeredRide/post', (req, res) => {
     });
 });
 
+app.get('/offeredRide/get', (req, res) => {
+    OfferedRide.find({ "active": true }).then((rides) => {
+        res.send(rides);
+    }).catch((err) => {
+        res.send(err);
+    });
+});
+
 app.listen(PORT, () => { console.log(`Listening on port ${PORT}`) });
