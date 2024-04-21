@@ -169,7 +169,9 @@
   height: 70vh;
   width: 40vw;
   border-radius: 30px;
-
+  font-size: 1rem;
+  overflow-y: scroll; 
+  
 }
 
 .rideForm h2 {
