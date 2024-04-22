@@ -1,36 +1,41 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import AppNav from "../components/AppNav";
 import { GoogleMap, useJsApiLoader, Marker } from "@react-google-maps/api";
 import { Placeholder } from "react-bootstrap";
 import "../styles/bookride.css";
 import RideCard from "../components/RideCard";
+import axios from "axios";
+import io from "socket.io-client";
+
+const socket = io.connect("http://localhost:9001");
 const BookRide = () => {
   const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: import.meta.env.REACT_APP_GOOGLE_MAPS_API,
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API,
   });
   const center = { lat: 28.63041213046698, lng: 77.37111466441804 };
   const caricon = "/circle.png";
 
-  const sampleList = [
-    {
-      name: "Rahul",
-      phone: "9876543210",
-      from: "Delhi",
-      to: "Noida",
-      totalSeats:4,
-      availableSeats:2,
-      time: "10:00",
-    },
-    {
-      name: "Rohit",
-      phone: "1234567890",
-      from: "Noida",
-      to: "Delhi",
-      totalSeats:4,
-      availableSeats:2,
-      time: "11:00",
-    },
-  ];
+  const [rides, setRides] = useState([]);
+  const baseurl = import.meta.env.VITE_BASE_URL;
+
+  useEffect(() => {
+    const fetchRides = async () => {
+      try {
+        const response = await axios.get(baseurl + "/get");
+        setRides(response.data);
+      } catch (error) {
+        console.error("Failed to fetch rides:", error);
+      }
+    };
+
+    fetchRides();
+    const intervalId = setInterval(fetchRides, 60 * 1000);
+    return () => clearInterval(intervalId);
+  }, []);
+
+  const handleRideClick = (ride) => {
+    console.log(ride);
+  };
   return (
     <div className="bookride-container">
       <AppNav />
@@ -64,14 +69,30 @@ const BookRide = () => {
           </GoogleMap>
         </div>
       )}
-      <h2 style={{ textAlign: "center", textDecoration: "underline",fontFamily:"lato",fontWeight:"700",fontSize:"2.7rem" }}>
+      <h2
+        style={{
+          textAlign: "center",
+          textDecoration: "underline",
+          fontFamily: "lato",
+          fontWeight: "700",
+          fontSize: "2.7rem",
+        }}
+      >
         Available Rides
       </h2>
-      <div className="ride-list">
-        {sampleList.map((ride, index) => {
-          return <RideCard key={index} rideObj={ride} />;
-        })}
-      </div>
+      {rides.length > 0 ? (
+        <div className="ride-list">
+          {rides.map((ride, index) => (
+            <RideCard
+              key={index}
+              rideObj={ride}
+              handleRideClick={handleRideClick}
+            />
+          ))}
+        </div>
+      ) : (
+        <div>No rides available</div>
+      )}
     </div>
   );
 };
