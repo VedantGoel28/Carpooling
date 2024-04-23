@@ -16,8 +16,12 @@
     background: rgb(40, 40, 40);
   }
   
+  .btn1{
+    display: flex;
+    justify-content: center;
+  }
   .submitBtn {
-    background: rgb(93, 183, 239);
+    background: rgb(45, 167, 243);
     border: none;
     padding: 0.75rem 3.5rem;
     border-radius: 0.5rem;
@@ -29,7 +33,7 @@
 
 .inputForm{
     padding: 2rem;
-    margin-left: 5rem;
+    margin-left: 0rem;
     text-align: center;
     display: flex;
     justify-content: space-evenly;
@@ -44,7 +48,7 @@
   background: rgb(40, 40, 40);
   padding: 1rem;
   max-width: 50vw;
-  margin-left: 23rem;
+  margin-left: 25rem;
   border: 5px solid black;
   border-radius: 50px;
 }

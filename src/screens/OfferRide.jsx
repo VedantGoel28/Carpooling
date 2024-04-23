@@ -91,7 +91,8 @@ const OfferRide = ({ apiKey }) => {
     <div className='outer'>
       <br />
       <br />
-      <h1 className='topHeading'>"Offer Your Ride"</h1>
+      <div className='topHeading'> <h1>"Offer Your Ride"</h1> </div>
+      
       <div className='inputForm'>
         <div className='formLine line1'>
 
@@ -145,12 +146,11 @@ const OfferRide = ({ apiKey }) => {
           </div>
         </div>
 
-
-        <div>
-          {/* <button onClick={calculateAndDisplayRoute} className='submitBtn'>Offer Ride</button> */}
-        </div>
-
       </div>
+
+      <div className='btn1'>
+           <button onClick={calculateAndDisplayRoute} className='submitBtn'>Offer Ride</button> 
+        </div>
     
       <div style={{ height: '80vh', width: '80%', border: '5px', borderRadius: '50px', marginLeft:'9.5rem' }} ref={mapRef}></div>
     </div>
