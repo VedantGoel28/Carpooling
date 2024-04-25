@@ -22,6 +22,15 @@ const io = new Server(server, {
 
 io.on('connection', (socket) => {
     console.log(`User connected : ${socket.id}`);
+    socket.on('join', (metaid) => {
+        socket.join(metaid);
+        console.log(`User ${socket.id} joined room ${metaid}`);
+    });
+
+    socket.on('send_offer', (data) => {
+        console.log(data.driver_id);
+        socket.to(data.driver_id).emit("recieve_offer", data);
+    })
 });
 
 app.post('/offeredRide/post', (req, res) => {

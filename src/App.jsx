@@ -24,7 +24,7 @@ function App() {
       <Route path="/signin" element={<Signin />} />
       <Route path="/signup" element={<SignupScreen />} />
       <Route path="/home" element={<HomeScreen />} />
-      <Route path="/bookride" element={<BookRide/>} />
+      <Route path="/bookride" element={<BookRide />} />
       <Route path="/offeride" element={<h1>offer a ride</h1>} />
       <Route path="*" element={<h1>404:Page not found</h1>} />
     </Routes>

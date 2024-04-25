@@ -18,9 +18,9 @@
 }
 
 .ride-card:hover {
-    background-color:rgb(53, 50, 50);
+    background-color: rgb(53, 50, 50);
     cursor: pointer;
-    color:white;
+    color: white;
 }
 
 .ride-card-header {
@@ -38,19 +38,91 @@
     justify-content: space-around;
     margin-top: 1rem;
 }
-.ride-card-available-seats{
-    margin-left:2rem;
+
+.ride-card-available-seats {
+    margin-left: 2rem;
 }
 
-.ride-card-total-seats{
-    margin-left:0.8rem;
+.ride-card-total-seats {
+    margin-left: 0.8rem;
 }
 
-.ride-location-details{
-    display:flex;
+.ride-location-details {
+    display: flex;
 }
 
-.ride-seat-info{
-    display:flex;
-    justify-content:space-between;
+.ride-seat-info {
+    display: flex;
+    justify-content: space-between;
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    /* Semi-transparent black overlay */
+    z-index: 999;
+    /* Ensure the overlay appears on top of other elements */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.confirm-form {
+    background-color: white;
+    border-radius: 30px;
+    z-index: 1000;
+    width: 30vw;
+    height: 50vh;
+    padding: 2rem;
+    /* Ensure the form appears on top of the overlay */
+}
+
+.confirm-form .loc-details {
+    display: flex;
+    justify-content: space-around;
+}
+
+.confirm-form .form-user-details {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 1rem;
+}
+
+.confirm-form .form-buttons {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 2rem;
+}
+
+.selected-ride-details {
+    display: flex;
+    justify-content: space-around;
+}
+
+.selected-ride-details>p {
+    display: inline-block;
+}
+
+.no-scroll {
+    overflow: hidden;
+}
+
+.form-btn {
+    background-color: #0fe2f1;
+    color: black;
+    border: none;
+    padding: 0.5rem 1.5rem;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.form-btn:hover {
+    background-color: #0f5ef1;
+    cursor: pointer;
+    color: white;
 }
