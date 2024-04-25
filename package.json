@@ -11,9 +11,11 @@
     "start": "nodemon ./server/server.js"
   },
   "dependencies": {
+    "@chakra-ui/react": "^2.8.2",
     "@clerk/clerk-react": "^4.30.7",
     "@react-google-maps/api": "^2.19.3",
     "axios": "^1.6.8",
+    "@vis.gl/react-google-maps": "^0.9.0",
     "bootstrap": "^5.3.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
@@ -23,6 +25,7 @@
     "react": "^18.2.0",
     "react-bootstrap": "^2.10.2",
     "react-dom": "^18.2.0",
+    "react-icons": "^5.1.0",
     "react-router-dom": "^6.22.3",
     "react-typed": "^2.0.12",
     "socket.io": "^4.7.5",
