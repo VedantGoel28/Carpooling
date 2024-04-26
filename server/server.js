@@ -36,9 +36,9 @@ io.on('connection', (socket) => {
 app.post('/offeredRide/post', (req, res) => {
     const { metaid, driver, source, dest, time, contact, totalSeats, carNumber, carName } = req.body;
     OfferedRide.create({ metaid: metaid, driver: driver, source: source, dest: dest, time: time, contact: contact, availableSeats: totalSeats, totalSeats: totalSeats, carNumber: carNumber, carName: carName }).then((newRide) => {
-        res.send(newRide);
+        res.send("Ride posted successfully!");
     }).catch((err) => {
-        res.send(err);
+        res.send("Sorry, a ride with this account already exists!!");
     });
 });
 
@@ -49,6 +49,16 @@ app.get('/offeredRide/get', (req, res) => {
         res.send(err);
     });
 });
+
+setInterval(() => {
+    OfferedRide.deleteMany({ active: false })
+        .then((result) => {
+            console.log(`${result.deletedCount} document(s) were deleted.`);
+        })
+        .catch((err) => {
+            console.error(`Failed to delete document: ${err}`);
+        });
+}, 30000);
 
 app.listen(PORT, () => { console.log(`Listening on port ${PORT}`) });
 server.listen(9001, () => { console.log('Socket server listening on port 9001') });
