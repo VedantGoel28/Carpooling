@@ -47,9 +47,12 @@ const OfferRideSchema = new mongoose.Schema({
         required: true,
         unique: true,
     },
+    offers: {
+        type: Array,
+        default: []
+    }
 }
 );
-
 const OfferedRide = mongoose.model('OfferedRide', OfferRideSchema);
 
 export default OfferedRide;

@@ -5,8 +5,111 @@ import formBg from "../assets/gmap_bg.jpg";
 import { useUser } from "@clerk/clerk-react";
 import AppNav from "../components/AppNav";
 import { io } from "socket.io-client";
-
 const socket = io.connect("http://localhost:9001");
+
+const NegotiationForm = ({ onClose, offer, onNegotiate, onAccept }) => {
+  const [negotiateAmt, setNegotiateAmt] = useState(offer.offered);
+  useEffect(() => {
+    // When the component mounts, add the no-scroll class to the body
+    document.body.classList.add("no-scroll");
+
+    // When the component unmounts, remove the no-scroll class from the body
+    return () => {
+      document.body.classList.remove("no-scroll");
+    };
+  }, []);
+
+  const handleNegotiate = () => {
+    // Handle negotiation logic
+    onNegotiate(negotiateAmt);
+  };
+
+  const handleAccept = () => {
+    onAccept();
+  };
+
+  return (
+    <div
+      className="negotiate-form"
+      style={{
+        overflow: "auto",
+        wordWrap: "break-word",
+        scrollbarWidth: "none",
+      }}
+    >
+      <h3 style={{ color: "black", textAlign: "center", marginBottom: "1rem" }}>
+        Negotiate Form
+      </h3>
+      <h5 style={{ color: "black", marginBottom: "1.5rem" }}>
+        <u>Offer Details</u>
+      </h5>
+      <div
+        className="offer-user-details"
+        style={{
+          color: "black",
+          display: "flex",
+          justifyContent: "space-around",
+        }}
+      >
+        <p>Passenger Name : {offer.username}</p>
+        <p>Contact : {offer.user_contact}</p>
+      </div>
+      <div
+        className="offer-user-locDetails"
+        style={{
+          color: "black",
+          display: "flex",
+          justifyContent: "space-around",
+        }}
+      >
+        <p>
+          Pick up :{" "}
+          {offer.source.length > 10
+            ? offer.source.substr(0, 10) + "..."
+            : offer.source}
+        </p>
+        <p>
+          Destination :{" "}
+          {offer.dest.length > 10
+            ? offer.dest.substr(0, 10) + "..."
+            : offer.dest}
+        </p>
+      </div>
+      <div
+        className="offer-user-other"
+        style={{
+          color: "black",
+          display: "flex",
+          justifyContent: "space-around",
+        }}
+      >
+        <p>Offered Amount : &#8377;{offer.offered}</p>
+        <p>Passengers Count : {offer.passengers_count}</p>
+      </div>
+      <div
+        className="offer-negotiate-amt"
+        style={{ marginLeft: "2rem", marginTop: "1rem" }}
+      >
+        <label htmlFor="negotiate-amt" style={{ color: "black" }}>
+          Negotiation amount
+        </label>
+        <br />
+        <span style={{ color: "black", fontSize: "1.2rem" }}>&#8377;</span>
+        <input
+          type="number"
+          id="negotiate-amt"
+          defaultValue={negotiateAmt}
+          onChange={(e) => setNegotiateAmt(e.target.value)}
+        />
+      </div>
+      <div className="negotiate-btns">
+        <button onClick={handleNegotiate}>Negotiate</button>
+        <button onClick={handleAccept}>Accept</button>
+        <button onClick={onClose}>cancel</button>
+      </div>
+    </div>
+  );
+};
 const OfferRide = ({ apiKey }) => {
   const { user } = useUser();
   const mapRef = useRef();
@@ -16,6 +119,10 @@ const OfferRide = ({ apiKey }) => {
   const [directionsRenderer, setDirectionsRenderer] = useState(null);
   const [source, setSource] = useState("");
   const [destination, setDestination] = useState("");
+  const [offers, setoffers] = useState([]);
+  const [showNegotiateForm, setShowNegotiateForm] = useState(false);
+  // const [offer, setOffer] = useState({});
+  const [currentOfferIndex, setCurrentOfferIndex] = useState(0);
 
   useEffect(() => {
     // Load Google Maps API
@@ -35,6 +142,83 @@ const OfferRide = ({ apiKey }) => {
       calculateAndDisplayRoute();
     }
   }, [directionsService, source, destination]);
+
+  useEffect(() => {
+    if (user && user.primaryWeb3Wallet && user.primaryWeb3Wallet.web3Wallet) {
+      // Socket listener for receiving offers
+      socket.on("recieveoffer", (data) => {
+        if (data.driver_id === user.primaryWeb3Wallet.web3Wallet) {
+          console.log("received offer");
+          setoffers((prevOffers) => [...prevOffers, data]);
+        }
+      });
+
+      // Clean up socket listener
+      return () => {
+        socket.off("recieveOffer");
+      };
+    }
+  }, []);
+  // useEffect(() => {
+  //   if (user && user.primaryWeb3Wallet && user.primaryWeb3Wallet.web3Wallet) {
+  //     const handler = (data) => {
+  //       if (data.driver_id === user.primaryWeb3Wallet.web3Wallet) {
+  //         setoffers((offers) => [...offers, data]);
+  //         alert(
+  //           `${data.username} offered ${data.offered} for ${data.source} to ${data.dest}`
+  //         );
+  //       }
+  //       if (offers.length > 0) {
+  //         offers.forEach((el) => {
+  //           setOffer(el);
+  //           setShowNegotiateForm(true);
+  //           setoffers(offers.filter((el) => el !== offer));
+  //         });
+  //       }
+  //     };
+
+  //     socket.on("recieveoffer", handler);
+
+  //     return () => {
+  //       socket.off("recieveoffer", handler);
+  //     };
+  //   }
+  // }, [socket, user, offers, offer]);
+  useEffect(() => {
+    // Display negotiation form when offers change
+    if (offers.length > 0) {
+      setShowNegotiateForm(true);
+    }
+  }, [offers]);
+
+  const handleNegotiate = (negotiateAmt) => {
+    // Handle negotiation logic here
+    console.log("Negotiating with amount:", negotiateAmt);
+
+    // Move to next offer after negotiation
+    setCurrentOfferIndex((prevIndex) => prevIndex + 1);
+  };
+
+  const handleAccept = () => {
+    // Handle accept logic here
+    console.log("Offer accepted");
+    axios.post("http://localhost:9000/offeredRide/acceptOffer", {
+      metaid: user?.primaryWeb3Wallet.web3Wallet,
+      userid: offers[currentOfferIndex].userid,
+    });
+    socket.emit("acceptOffer", {
+      acceptedamt: offers[currentOfferIndex].offered,
+      userid: offers[currentOfferIndex].userid,
+      driver_id: user?.primaryWeb3Wallet.web3Wallet,
+    });
+    // Move to next offer after acceptance
+    setCurrentOfferIndex((prevIndex) => prevIndex + 1);
+  };
+
+  const handleCloseNegotiationForm = () => {
+    // Close negotiation form
+    setShowNegotiateForm(false);
+  };
 
   const initMap = () => {
     const map = new window.google.maps.Map(mapRef.current, {
@@ -77,6 +261,10 @@ const OfferRide = ({ apiKey }) => {
   };
 
   const calculateAndDisplayRoute = () => {
+    if (!directionsService || !source || !destination) {
+      return;
+    }
+
     directionsService.route(
       {
         origin: source,
@@ -87,11 +275,12 @@ const OfferRide = ({ apiKey }) => {
         if (status === "OK") {
           directionsRenderer.setDirections(response);
         } else {
-          window.alert("Directions request failed due to " + status);
+          console.error("Directions request failed due to " + status);
         }
       }
     );
   };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -111,9 +300,9 @@ const OfferRide = ({ apiKey }) => {
     try {
       axios
         .post("http://localhost:9000/offeredRide/post", {
-          source: source,
+          source: sourceInputRef.current.value,
           driver: user?.username,
-          dest: destination,
+          dest: destinationInputRef.current.value,
           time: time.toString(),
           metaid: user?.primaryWeb3Wallet.web3Wallet,
           totalSeats: parseInt(totalSeats),
@@ -127,6 +316,7 @@ const OfferRide = ({ apiKey }) => {
           setTime("");
           setTotalSeats(4);
           alert(res.data);
+          socket.emit("join", user?.primaryWeb3Wallet.web3Wallet);
         })
         .catch((err) => {
           console.log(err);
@@ -138,7 +328,7 @@ const OfferRide = ({ apiKey }) => {
     }
   };
 
-  const [time, setTime] = useState(null);
+  const [time, setTime] = useState("");
   const [totalSeats, setTotalSeats] = useState(4);
   const [carname, setCarname] = useState("");
   const [carnumber, setCarnumber] = useState("");
@@ -278,6 +468,16 @@ const OfferRide = ({ apiKey }) => {
           ref={mapRef}
         ></div>
       </div>
+      {showNegotiateForm && (
+        <div className="overlay">
+          <NegotiationForm
+            onClose={handleCloseNegotiationForm}
+            offer={offers[currentOfferIndex]}
+            onNegotiate={handleNegotiate}
+            onAccept={handleAccept}
+          />
+        </div>
+      )}
     </div>
   );
 };

@@ -18,9 +18,15 @@ const RideCard = (props) => {
             fontFamily: "poppins",
           }}
         >
-          <div className="ride-card-from">{rideObj.source}</div>
+          <div className="ride-card-from">
+            {rideObj.source.length > 10
+              ? rideObj.source.substring(0, 10)+'...'
+              : rideObj.source}
+          </div>
           <span>{"->"}</span>
-          <div className="ride-card-dest">{rideObj.dest}</div>
+          <div className="ride-card-dest">{rideObj.dest.length > 10
+              ? rideObj.dest.substring(0, 10)+'...'
+              : rideObj.dest}</div>
         </div>
         <div
           className="ride-seat-info"

@@ -1,6 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import AppNav from "../components/AppNav";
-import { GoogleMap, useJsApiLoader, Marker } from "@react-google-maps/api";
+import {
+  GoogleMap,
+  useJsApiLoader,
+  Marker,
+  Autocomplete,
+} from "@react-google-maps/api";
 import { Placeholder } from "react-bootstrap";
 import "../styles/bookride.css";
 import RideCard from "../components/RideCard";
@@ -10,7 +15,7 @@ import { useNavigate } from "react-router-dom";
 import { useUser } from "@clerk/clerk-react";
 
 const socket = io.connect("http://localhost:9001");
-const ConfirmForm = ({ onClose, ride }) => {
+const ConfirmForm = ({ onClose, ride, src, dest }) => {
   useEffect(() => {
     // When the component mounts, add the no-scroll class to the body
     document.body.classList.add("no-scroll");
@@ -20,22 +25,37 @@ const ConfirmForm = ({ onClose, ride }) => {
       document.body.classList.remove("no-scroll");
     };
   }, []);
-  const handleSubmit = () => {
-    socket.emit("send_offer", {
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    console.log("Submitted");
+    console.log(user.id);
+    const data = {
       username: userName,
-      user_contact: userContact,
-      source: source,
-      dest: destination,
+      userid: user.primaryWeb3Wallet.web3Wallet,
+      user_contact: user.primaryPhoneNumber.phoneNumber,
+      source: src,
+      dest: dest,
       offered: offeredamount,
       passengers_count: passengers,
-      driver_id: selectedRide.metaid,
+      driver_id: ride.metaid,
+    };
+    const broadcast = socket.emit("sendoffer", data);
+    axios.post("http://localhost:9000/offeredRide/updateOffers", {
+      metaid: data.driver_id,
+      userid: data.userid,
+      username: data.username,
+      contact: data.user_contact,
+      offeredamt: data.offered,
+      usrsrc: data.source,
+      usrdst: data.dest,
+      passengerscnt: data.passengers_count,
     });
+    console.log(broadcast);
+    onClose();
   };
   const { user } = useUser();
   const [userName, setUserName] = useState(user.username);
-  const [userContact, setUserContact] = useState(null);
-  const [source, setSource] = useState("");
-  const [destination, setDestination] = useState("");
+
   const [offeredamount, setOfferedAmount] = useState(100);
   const [passengers, setPassengers] = useState(1);
 
@@ -59,7 +79,11 @@ const ConfirmForm = ({ onClose, ride }) => {
         <p>Car Name : {ride.carName}</p>
       </div>
       <h5 style={{ color: "black", marginBottom: "0.8rem" }}>User Details</h5>
-      <form onSubmit={handleSubmit} style={{ marginTop: "1.7rem" }}>
+      <form
+        method="post"
+        onSubmit={handleSubmit}
+        style={{ marginTop: "1.7rem" }}
+      >
         <div className="form-user-details">
           <div className="form-name" style={{ display: "inline-block" }}>
             <label htmlFor="name" style={{ color: "black" }}>
@@ -82,44 +106,7 @@ const ConfirmForm = ({ onClose, ride }) => {
               Contact
             </label>
             <br />
-            <input
-              type="text"
-              id="contact"
-              name="contact"
-              required
-              defaultValue={userContact}
-              onChange={(e) => setUserContact(e.target.value)}
-            />
-          </div>
-        </div>
-        <div className="loc-details">
-          <div className="pickUp" style={{ display: "inline-block" }}>
-            <label htmlFor="source" style={{ color: "black" }}>
-              Source
-            </label>
-            <br />
-            <input
-              type="text"
-              id="source"
-              name="source"
-              required
-              defaultValue={source}
-              onChange={(e) => setSource(e.target.value)}
-            />
-          </div>
-          <div className="drop" style={{ display: "inline-block" }}>
-            <label htmlFor="dest" style={{ color: "black" }}>
-              Destination
-            </label>
-            <br />
-            <input
-              type="text"
-              id="dest"
-              name="dest"
-              required
-              defaultValue={destination}
-              onChange={(e) => setDestination(e.target.value)}
-            />
+            <div id="contact">{user.primaryPhoneNumber.phoneNumber}</div>
           </div>
         </div>
         <div
@@ -163,7 +150,7 @@ const ConfirmForm = ({ onClose, ride }) => {
           </div>
         </div>
         <div className="form-buttons" style={{ marginTop: "2.5rem" }}>
-          <button type="submit" className="form-btn">
+          <button type="submit" className="form-btn" onClick={handleSubmit}>
             Submit
           </button>
           <button onClick={onClose} className="form-btn">
@@ -175,14 +162,21 @@ const ConfirmForm = ({ onClose, ride }) => {
   );
 };
 const BookRide = () => {
+  const [location, setLocation] = useState({
+    lat: 28.63041213046698,
+    lng: 77.37111466441804,
+  });
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API,
+    libraries: ["places"],
   });
-  const center = { lat: 28.63041213046698, lng: 77.37111466441804 };
   const caricon = "/circle.png";
 
   const [rides, setRides] = useState([]);
+  const { user } = useUser();
   const baseurl = import.meta.env.VITE_BASE_URL;
+  const sourceRef = useRef();
+  const destRef = useRef();
 
   useEffect(() => {
     const fetchRides = async () => {
@@ -194,15 +188,42 @@ const BookRide = () => {
       }
     };
     fetchRides();
-    // const intervalId = setInterval(fetchRides, 60 * 1000);
-    // return () => clearInterval(intervalId);
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          });
+        },
+        (error) => console.log(error)
+      );
+    }
+    const intervalId = setInterval(fetchRides, 60 * 1000);
+    return () => clearInterval(intervalId);
   }, []);
 
   useEffect(() => {
-    socket.on("recieve_offer", (data) => {
-      alert(`${data.offeredamount} ${data.username} ${data.source}`);
-    });
-  }, [socket]);
+    if (user && user.primaryWeb3Wallet && user.primaryWeb3Wallet.web3Wallet) {
+      socket.on(`recieveoffer`, (data) => {
+        if (data.driver_id === user.primaryWeb3Wallet.web3Wallet) {
+          alert(`${data.offered.toString()} ${data.username} ${data.source}`);
+        }
+      });
+      socket.on(`offeraccepted`, (data) => {
+        if (data.userid === user.primaryWeb3Wallet.web3Wallet) {
+          alert(
+            `Your offer of ${data.acceptedamt} has been accepted by ${data.driver_id}`
+          );
+        }
+      });
+
+      return () => {
+        socket.off(`recieveoffer`);
+        socket.off(`offeraccepted`);
+      };
+    }
+  }, [user]);
 
   const navigate = useNavigate();
   const [showConfirmForm, setShowConfirmForm] = useState(false);
@@ -215,19 +236,108 @@ const BookRide = () => {
   const handleCloseConfirmForm = () => {
     setShowConfirmForm(false);
   };
+
+  const handleSearchRides = () => {};
   return (
     <div className="bookride-container">
       <AppNav />
+      <div
+        className="loc-details"
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          marginTop: "3rem",
+        }}
+      >
+        <div
+          className="pickUp"
+          style={{
+            display: "flex",
+            width: "30%",
+            justifyContent: "flex-start",
+            alignItems: "center",
+          }}
+        >
+          <span>
+            <i
+              className="fa-solid fa-location-arrow"
+              style={{
+                display: "inline-block",
+                fontSize: "2rem",
+                marginRight: "1rem",
+              }}
+            ></i>
+          </span>
+          <Autocomplete>
+            <input
+              type="text"
+              id="source"
+              name="source"
+              required
+              ref={sourceRef}
+              style={{
+                flex: "1",
+                height: "2rem",
+                padding: "1.2rem",
+              }}
+            />
+          </Autocomplete>
+        </div>
+        <div
+          className="drop"
+          style={{
+            display: "flex",
+            width: "30%",
+            justifyContent: "flex-start",
+            alignItems: "center",
+          }}
+        >
+          <i
+            className="fa-solid fa-location-arrow"
+            style={{
+              display: "inline-block",
+              fontSize: "2rem",
+              marginRight: "1rem",
+            }}
+          ></i>
+          <Autocomplete>
+            <input
+              type="text"
+              id="dest"
+              name="dest"
+              required
+              ref={destRef}
+              style={{
+                flexGrow: "1",
+                height: "2rem",
+                padding: "1.2rem",
+              }}
+            />
+          </Autocomplete>
+          <button
+            style={{
+              padding: "1rem",
+              border: "none",
+              borderRadius: "1rem",
+              marginLeft: "1rem",
+            }}
+          >
+            Search Rides
+          </button>
+        </div>
+      </div>
       {!isLoaded ? (
         <div>Loading....</div>
       ) : (
         <div className="map-container">
           <GoogleMap
-            center={center}
+            center={location}
             zoom={16}
             mapContainerStyle={{
               height: "70vh",
               width: "60vw",
+
               borderRadius: "2%",
               border: "1px solid antiquewhite",
             }}
@@ -238,7 +348,7 @@ const BookRide = () => {
             }}
           >
             <Marker
-              position={center}
+              position={location}
               icon={{
                 url: caricon,
                 scaledSize: new window.google.maps.Size(10, 10),
@@ -274,7 +384,12 @@ const BookRide = () => {
       )}
       {showConfirmForm && (
         <div className="overlay">
-          <ConfirmForm onClose={handleCloseConfirmForm} ride={selectedRide} />
+          <ConfirmForm
+            onClose={handleCloseConfirmForm}
+            ride={selectedRide}
+            src={sourceRef.current.value}
+            dest={destRef.current.value}
+          />
         </div>
       )}
     </div>
