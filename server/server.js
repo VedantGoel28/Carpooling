@@ -97,8 +97,12 @@ function startServer() {
         }
     });
 
+    app.post('/saveRide', async (req, res) => {
+        const { metaid, driver, source, dest, amountPaid, passengerCount, carNumber } = req.body;
+    });
+
     app.post('/offeredRide/acceptOffer', (req, res) => {
-        const { metaid, userid, passengerCount } = req.body;
+        const { metaid, userid, passengerCount,acceptedamt } = req.body;
         OfferedRide.findOne({ metaid: metaid })
             .then((ride) => {
                 // Find the index of the offer with the given userid in the offers array
@@ -107,6 +111,7 @@ function startServer() {
                     // Update the accepted field of the offer to true
                     ride.offers[offerIndex].accepted = true;
                     ride.availableSeats -= passengerCount;
+                    ride.offers[offerIndex].offeredamt = acceptedamt;
                     // Save the updated document
                     ride.markModified('offers'); // Mark offers array as modified
                     ride.save()

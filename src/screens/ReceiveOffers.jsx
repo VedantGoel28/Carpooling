@@ -179,6 +179,9 @@ const ReceiveOffers = () => {
       negotiatedamt: negotiateAmt,
       drivername: user?.username,
       drivercontact: user?.primaryPhoneNumber.phoneNumber,
+      passengerCount: selectedOffer.passengerCount,
+      pickup: selectedOffer.usrsrc,
+      drop: selectedOffer.usrdst,
     });
     setShowNegotiateForm(false);
   };

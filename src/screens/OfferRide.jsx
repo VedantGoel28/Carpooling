@@ -100,7 +100,7 @@ const NegotiationForm = ({ onClose, offer, onNegotiate, onAccept }) => {
           id="negotiate-amt"
           defaultValue={negotiateAmt}
           onChange={(e) => setNegotiateAmt(e.target.value)}
-          style={{color:"black"}}
+          style={{ color: "black" }}
         />
       </div>
       <div className="negotiate-btns">
@@ -199,8 +199,11 @@ const OfferRide = ({ apiKey }) => {
       driver_id: user?.primaryWeb3Wallet.web3Wallet,
       userid: offers[currentOfferIndex].userid,
       negotiatedamt: negotiateAmt,
+      passengerCount: offers[currentOfferIndex].passengerscnt,
       drivername: user?.username,
       drivercontact: user?.primaryPhoneNumber.phoneNumber,
+      pickup: offers[currentOfferIndex].usrsrc,
+      drop: offers[currentOfferIndex].usrdst,
     });
     // Move to next offer after negotiation
     setCurrentOfferIndex((prevIndex) => prevIndex + 1);
@@ -213,11 +216,13 @@ const OfferRide = ({ apiKey }) => {
       metaid: user?.primaryWeb3Wallet.web3Wallet,
       userid: offers[currentOfferIndex].userid,
       passengerCount: offers[currentOfferIndex].passengerscnt,
+      acceptedamt: offers[currentOfferIndex].offered,
     });
     socket.emit("acceptOffer", {
       acceptedamt: offers[currentOfferIndex].offered,
       userid: offers[currentOfferIndex].userid,
       driver_id: user?.primaryWeb3Wallet.web3Wallet,
+      passengerCount: offers[currentOfferIndex].passengerscnt,
     });
     // Move to next offer after acceptance
     setCurrentOfferIndex((prevIndex) => prevIndex + 1);

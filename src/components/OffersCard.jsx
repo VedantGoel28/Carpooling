@@ -2,6 +2,7 @@ import React from "react";
 import "../styles/offercard.css";
 
 const OffersCard = ({ offer, handleClick }) => {
+  console.log(offer);
   return (
     <div className="offer-card" onClick={() => handleClick(offer)}>
       <div className="offer-card-header">

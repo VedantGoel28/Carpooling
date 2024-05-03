@@ -171,7 +171,7 @@ const ConfirmForm = ({ onClose, ride, src, dest }) => {
   );
 };
 
-const Form = ({ negotiationDetails }) => {
+const Form = ({ negotiationDetails, handleAccept, handleReject }) => {
   useEffect(() => {
     // When the component mounts, add the no-scroll class to the body
     document.body.classList.add("no-scroll");
@@ -181,6 +181,8 @@ const Form = ({ negotiationDetails }) => {
       document.body.classList.remove("no-scroll");
     };
   }, []);
+
+  console.log(negotiationDetails);
   return (
     <div className="form">
       <div className="form-header">
@@ -198,12 +200,29 @@ const Form = ({ negotiationDetails }) => {
         <div className="form-offer-details">
           Negotiated amount : &#8377;{negotiationDetails.negotiatedamt}
         </div>
+        <div>
+          <p>Passengers : {negotiationDetails.passengerCount}</p>
+          <p>
+            Pick up :{" "}
+            {negotiationDetails.pickup.length > 40
+              ? negotiationDetails.pickup.substr(0, 40) + "..."
+              : negotiationDetails.pickup}
+          </p>
+          <p>
+            Drop :{" "}
+            {negotiationDetails.drop.length > 40
+              ? negotiationDetails.drop.substr(0, 40) + "..."
+              : negotiationDetails.drop}
+          </p>
+        </div>
       </div>
       <div className="form-buttons">
-        <button className="form-btn" onClick={() => console.log("accepted")}>
+        <button className="form-btn" onClick={handleAccept}>
           Accept
         </button>
-        <button className="form-btn">Reject</button>
+        <button className="form-btn" onClick={handleReject}>
+          Reject
+        </button>
       </div>
     </div>
   );
@@ -310,6 +329,20 @@ const BookRide = () => {
   };
   const handleCloseConfirmForm = () => {
     setShowConfirmForm(false);
+  };
+
+  const onClickAccept = async () => {
+    await axios.post("http://localhost:9000/offeredRide/acceptOffer", {
+      userid: negotiationDetails.userid,
+      metaid: negotiationDetails.driver_id,
+      acceptedamt: parseInt(negotiationDetails.negotiatedamt),
+      passengerCount: negotiationDetails.passengerCount,
+    });
+    setForm(false);
+  };
+
+  const onClickReject = async () => {
+    setForm(false);
   };
 
   return (
@@ -484,7 +517,11 @@ const BookRide = () => {
       )}
       {form && (
         <div className="overlay">
-          <Form negotiationDetails={negotiationDetails} />
+          <Form
+            negotiationDetails={negotiationDetails}
+            handleAccept={onClickAccept}
+            handleReject={onClickReject}
+          />
         </div>
       )}
     </div>
