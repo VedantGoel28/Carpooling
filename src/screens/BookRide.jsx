@@ -5,6 +5,7 @@ import {
   useJsApiLoader,
   Marker,
   Autocomplete,
+  DirectionsRenderer,
 } from "@react-google-maps/api";
 import { Placeholder } from "react-bootstrap";
 import "../styles/bookride.css";
@@ -13,9 +14,11 @@ import axios from "axios";
 import io from "socket.io-client";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "@clerk/clerk-react";
+import { set } from "mongoose";
 
 const socket = io.connect("http://localhost:9001");
 const ConfirmForm = ({ onClose, ride, src, dest }) => {
+  const { user } = useUser();
   useEffect(() => {
     // When the component mounts, add the no-scroll class to the body
     document.body.classList.add("no-scroll");
@@ -27,6 +30,10 @@ const ConfirmForm = ({ onClose, ride, src, dest }) => {
   }, []);
   const handleSubmit = (event) => {
     event.preventDefault();
+    if (!user) {
+      console.error("User is not defined");
+      return;
+    }
     console.log("Submitted");
     console.log(user.id);
     const data = {
@@ -53,7 +60,6 @@ const ConfirmForm = ({ onClose, ride, src, dest }) => {
     console.log(broadcast);
     onClose();
   };
-  const { user } = useUser();
   const [userName, setUserName] = useState(user.username);
 
   const [offeredamount, setOfferedAmount] = useState(100);
@@ -101,7 +107,10 @@ const ConfirmForm = ({ onClose, ride, src, dest }) => {
               }}
             />
           </div>
-          <div className="form-contact" style={{ display: "inline-block" }}>
+          <div
+            className="form-contact"
+            style={{ display: "inline-block", color: "black" }}
+          >
             <label htmlFor="contact" style={{ color: "black" }}>
               Contact
             </label>
@@ -161,6 +170,45 @@ const ConfirmForm = ({ onClose, ride, src, dest }) => {
     </div>
   );
 };
+
+const Form = ({ negotiationDetails }) => {
+  useEffect(() => {
+    // When the component mounts, add the no-scroll class to the body
+    document.body.classList.add("no-scroll");
+
+    // When the component unmounts, remove the no-scroll class from the body
+    return () => {
+      document.body.classList.remove("no-scroll");
+    };
+  }, []);
+  return (
+    <div className="form">
+      <div className="form-header">
+        <h3 style={{ fontWeight: "700", textAlign: "center" }}>Negotiate</h3>
+      </div>
+      <div className="form-body">
+        <div className="form-user-details">
+          <div className="form-driver-name">
+            Driver Name : {negotiationDetails.drivername}
+          </div>
+          <div className="form-driver-contact">
+            Driver Contact : {negotiationDetails.drivercontact}
+          </div>
+        </div>
+        <div className="form-offer-details">
+          Negotiated amount : &#8377;{negotiationDetails.negotiatedamt}
+        </div>
+      </div>
+      <div className="form-buttons">
+        <button className="form-btn" onClick={() => console.log("accepted")}>
+          Accept
+        </button>
+        <button className="form-btn">Reject</button>
+      </div>
+    </div>
+  );
+};
+
 const BookRide = () => {
   const [location, setLocation] = useState({
     lat: 28.63041213046698,
@@ -218,16 +266,43 @@ const BookRide = () => {
         }
       });
 
+      socket.on(`negotiate`, (data) => {
+        if (data.userid === user.primaryWeb3Wallet.web3Wallet) {
+          alert(`${data.drivername} is negotiating with you.`);
+          setNegotiationDetails(data);
+          setForm(true);
+        }
+      });
+
       return () => {
         socket.off(`recieveoffer`);
         socket.off(`offeraccepted`);
+        socket.off(`negotiate`);
       };
     }
   }, [user]);
 
+  const calculateRoute = async () => {
+    if (sourceRef.current.value == "" || destRef.current.value == "") {
+      return;
+    }
+
+    const directionsService = new google.maps.DirectionsService();
+    const results = await directionsService.route({
+      origin: sourceRef.current.value,
+      destination: destRef.current.value,
+      travelMode: google.maps.TravelMode.DRIVING,
+    });
+
+    setDirectionResponse(results);
+  };
+
   const navigate = useNavigate();
   const [showConfirmForm, setShowConfirmForm] = useState(false);
   const [selectedRide, setSelectedRide] = useState(null);
+  const [negotiationDetails, setNegotiationDetails] = useState({});
+  const [form, setForm] = useState(false);
+  const [directionResponse, setDirectionResponse] = useState(null);
   const handleRideClick = (ride) => {
     socket.emit("join", ride.metaid);
     setSelectedRide(ride);
@@ -237,7 +312,6 @@ const BookRide = () => {
     setShowConfirmForm(false);
   };
 
-  const handleSearchRides = () => {};
   return (
     <div className="bookride-container">
       <AppNav />
@@ -317,13 +391,29 @@ const BookRide = () => {
           </Autocomplete>
           <button
             style={{
-              padding: "1rem",
+              padding: "0.8rem",
               border: "none",
               borderRadius: "1rem",
               marginLeft: "1rem",
             }}
+            onClick={calculateRoute}
           >
             Search Rides
+          </button>
+          <button
+            style={{
+              padding: "0.8rem 1.2rem",
+              border: "none",
+              borderRadius: "1rem",
+              marginLeft: "1rem",
+            }}
+            onClick={() => {
+              setDirectionResponse(null);
+              sourceRef.current.value = "";
+              destRef.current.value = "";
+            }}
+          >
+            X
           </button>
         </div>
       </div>
@@ -347,14 +437,12 @@ const BookRide = () => {
               keyboardShortcuts: false,
             }}
           >
-            <Marker
-              position={location}
-              icon={{
-                url: caricon,
-                scaledSize: new window.google.maps.Size(10, 10),
-              }}
-              opacity={0.6}
-            ></Marker>
+            <Marker position={location}></Marker>
+            {directionResponse && (
+              <DirectionsRenderer
+                directions={directionResponse}
+              ></DirectionsRenderer>
+            )}
           </GoogleMap>
         </div>
       )}
@@ -371,13 +459,15 @@ const BookRide = () => {
       </h2>
       {rides.length > 0 ? (
         <div className="ride-list">
-          {rides.map((ride, index) => (
-            <RideCard
-              key={index}
-              rideObj={ride}
-              handleRideClick={handleRideClick}
-            />
-          ))}
+          {rides.map((ride, index) =>
+            ride.metaid !== user?.primaryWeb3Wallet?.web3Wallet ? (
+              <RideCard
+                key={index}
+                rideObj={ride}
+                handleRideClick={handleRideClick}
+              />
+            ) : null
+          )}
         </div>
       ) : (
         <div>No rides available</div>
@@ -390,6 +480,11 @@ const BookRide = () => {
             src={sourceRef.current.value}
             dest={destRef.current.value}
           />
+        </div>
+      )}
+      {form && (
+        <div className="overlay">
+          <Form negotiationDetails={negotiationDetails} />
         </div>
       )}
     </div>

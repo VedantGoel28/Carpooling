@@ -100,6 +100,7 @@ const NegotiationForm = ({ onClose, offer, onNegotiate, onAccept }) => {
           id="negotiate-amt"
           defaultValue={negotiateAmt}
           onChange={(e) => setNegotiateAmt(e.target.value)}
+          style={{color:"black"}}
         />
       </div>
       <div className="negotiate-btns">
@@ -146,6 +147,7 @@ const OfferRide = ({ apiKey }) => {
   useEffect(() => {
     if (user && user.primaryWeb3Wallet && user.primaryWeb3Wallet.web3Wallet) {
       // Socket listener for receiving offers
+      socket.emit("join", user?.primaryWeb3Wallet.web3Wallet);
       socket.on("recieveoffer", (data) => {
         if (data.driver_id === user.primaryWeb3Wallet.web3Wallet) {
           console.log("received offer");
@@ -193,8 +195,13 @@ const OfferRide = ({ apiKey }) => {
 
   const handleNegotiate = (negotiateAmt) => {
     // Handle negotiation logic here
-    console.log("Negotiating with amount:", negotiateAmt);
-
+    socket.emit("negotiateOffer", {
+      driver_id: user?.primaryWeb3Wallet.web3Wallet,
+      userid: offers[currentOfferIndex].userid,
+      negotiatedamt: negotiateAmt,
+      drivername: user?.username,
+      drivercontact: user?.primaryPhoneNumber.phoneNumber,
+    });
     // Move to next offer after negotiation
     setCurrentOfferIndex((prevIndex) => prevIndex + 1);
   };
@@ -205,6 +212,7 @@ const OfferRide = ({ apiKey }) => {
     axios.post("http://localhost:9000/offeredRide/acceptOffer", {
       metaid: user?.primaryWeb3Wallet.web3Wallet,
       userid: offers[currentOfferIndex].userid,
+      passengerCount: offers[currentOfferIndex].passengerscnt,
     });
     socket.emit("acceptOffer", {
       acceptedamt: offers[currentOfferIndex].offered,
@@ -213,6 +221,7 @@ const OfferRide = ({ apiKey }) => {
     });
     // Move to next offer after acceptance
     setCurrentOfferIndex((prevIndex) => prevIndex + 1);
+    setShowNegotiateForm(false);
   };
 
   const handleCloseNegotiationForm = () => {
@@ -316,7 +325,6 @@ const OfferRide = ({ apiKey }) => {
           setTime("");
           setTotalSeats(4);
           alert(res.data);
-          socket.emit("join", user?.primaryWeb3Wallet.web3Wallet);
         })
         .catch((err) => {
           console.log(err);

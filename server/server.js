@@ -1,6 +1,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import OfferedRide from './OfferRide.js';
+import User from './user.js'
 import dotenv from 'dotenv';
 import cors from 'cors';
 import http from 'http';
@@ -34,8 +35,13 @@ function startServer() {
         });
 
         socket.on('acceptOffer', (data) => {
-            console.log(`${data.driver_id} accepted offer from ${data.userid} at ${data.accepteddamt}`);
+            console.log(`${data.driver_id} accepted offer from ${data.userid} at ${data.acceptedamt}`);
             socket.to(data.driver_id).emit(`offeraccepted`, data);
+        });
+
+        socket.on('negotiateOffer', (data) => {
+            console.log(`Negotiating offer with ${data.userid}`);
+            socket.to(data.driver_id).emit(`negotiate`, data);
         });
     });
 
@@ -58,8 +64,8 @@ function startServer() {
     });
 
     app.post('/offeredRide/updateOffers', (req, res) => {
-        const { metaid, userid, username, contact, offeredamt, usrsrc, usrdst, passengerCount } = req.body;
-        OfferedRide.findOneAndUpdate({ metaid: metaid }, { $push: { offers: { userid: userid, username: username, contact: contact, offeredamt: offeredamt, usrsrc: usrsrc, usrdst: usrdst, passengerCount: passengerCount, accepted: false } } }).then((ride) => {
+        const { metaid, userid, username, contact, offeredamt, usrsrc, usrdst, passengerscnt } = req.body;
+        OfferedRide.findOneAndUpdate({ metaid: metaid }, { $push: { offers: { userid: userid, username: username, contact: contact, offeredamt: offeredamt, usrsrc: usrsrc, usrdst: usrdst, passengerCount: parseInt(passengerscnt), accepted: false, paid: false, rejected: false } } }).then((ride) => {
             res.send("Offer added successfully!");
         }).catch((err) => {
             res.send(err);
@@ -76,8 +82,23 @@ function startServer() {
         });
     });
 
+    app.post('/adduser', async (req, res) => {
+        const { metaid, username, contact } = req.body;
+        const user = await User.findOne({ metaid: metaid });
+        if (user) {
+            res.send("User already exists");
+        }
+        else {
+            User.create({ metaid: metaid, username: username, contact: contact }).then(() => {
+                res.send("User added successfully!");
+            }).catch((err) => {
+                res.send(err);
+            });
+        }
+    });
+
     app.post('/offeredRide/acceptOffer', (req, res) => {
-        const { metaid, userid } = req.body;
+        const { metaid, userid, passengerCount } = req.body;
         OfferedRide.findOne({ metaid: metaid })
             .then((ride) => {
                 // Find the index of the offer with the given userid in the offers array
@@ -85,6 +106,7 @@ function startServer() {
                 if (offerIndex !== -1) {
                     // Update the accepted field of the offer to true
                     ride.offers[offerIndex].accepted = true;
+                    ride.availableSeats -= passengerCount;
                     // Save the updated document
                     ride.markModified('offers'); // Mark offers array as modified
                     ride.save()
