@@ -9,6 +9,9 @@ import SignupScreen from "./screens/SignupScreen";
 import HomeScreen from "./screens/HomeScreen";
 import BookRide from "./screens/BookRide";
 import OfferRide from "./screens/OfferRide";
+import PaymentScreen from "./screens/PaymentScreen";
+import Success from "./screens/success";
+import Cancel from "./screens/cancel";
 
 function App() {
   const user = useUser();
@@ -26,7 +29,9 @@ function App() {
       <Route path="/signin" element={<Signin />} />
       <Route path="/signup" element={<SignupScreen />} />
       <Route path="/home" element={<HomeScreen />} />
-      <Route path="/bookride" element={<BookRide/>} />
+      <Route path="/bookride" element={<PaymentScreen/>} />
+      <Route path="/success" element={<Success />} />
+      <Route path="/cancel" element={<Cancel />} />
       <Route path="/offeride" element={<OfferRide apiKey="AIzaSyDL5-CyNG5jVL9Kp62pDanJqwipxWV3-b0"/>}/>
       <Route path="*" element={<h1>404:Page not found</h1>} />
     </Routes>
