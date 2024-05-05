@@ -29,9 +29,30 @@ const OfferRideSchema = new mongoose.Schema({
     contact: {
         type: Number,
         required: true
+    },
+    availableSeats: {
+        type: Number,
+        required: true
+    },
+    totalSeats: {
+        type: Number,
+        required: true
+    },
+    carName: {
+        type: String,
+        required: true
+    },
+    carNumber: {
+        type: String,
+        required: true,
+        unique: true,
+    },
+    offers: {
+        type: Array,
+        default: []
     }
-});
-
+}
+);
 const OfferedRide = mongoose.model('OfferedRide', OfferRideSchema);
 
 export default OfferedRide;

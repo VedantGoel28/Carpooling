@@ -4,6 +4,7 @@ import { Link, NavLink } from "react-router-dom";
 import { UserButton, useUser } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 import AppNav from "../components/AppNav";
+import axios from "axios";
 
 import img1 from "../assets/c1.png";
 import img2 from "../assets/c2.png";
@@ -15,6 +16,23 @@ const HomeScreen = () => {
   const navigate = useNavigate();
   const { user } = useUser();
   const primaryWeb3Wallet = user?.primaryWeb3Wallet;
+
+  useEffect(() => {
+    if (user && user.primaryWeb3Wallet && user.primaryWeb3Wallet.web3Wallet) {
+      axios
+        .post("http://localhost:9000/adduser", {
+          metaid: user.primaryWeb3Wallet.web3Wallet,
+          username: user.username,
+          contact: user.primaryPhoneNumber.phoneNumber,
+        })
+        .then((res) => {
+          console.log(res);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  }, []);
 
   const onClickBookRide = () => {
     navigate("/bookride");
