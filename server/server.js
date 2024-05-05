@@ -102,7 +102,7 @@ function startServer() {
     });
 
     app.post('/offeredRide/acceptOffer', (req, res) => {
-        const { metaid, userid, passengerCount,acceptedamt } = req.body;
+        const { metaid, userid, passengerCount, acceptedamt } = req.body;
         OfferedRide.findOne({ metaid: metaid })
             .then((ride) => {
                 // Find the index of the offer with the given userid in the offers array
@@ -128,6 +128,62 @@ function startServer() {
             .catch((err) => {
                 res.status(500).send(err);
             });
+    });
+
+    app.post('/offeredRide/rejectOffer', (req, res) => {
+        const { metaid, userid } = req.body;
+        OfferedRide.findOne({ metaid: metaid })
+            .then((ride) => {
+                // Find the index of the offer with the given userid in the offers array
+                const offerIndex = ride.offers.findIndex((offer) => offer.userid === userid);
+                if (offerIndex !== -1) {
+                    // Update the rejected field of the offer to true
+                    ride.offers[offerIndex].rejected = true;
+                    // Save the updated document
+                    ride.markModified('offers'); // Mark offers array as modified
+                    ride.save()
+                        .then(() => {
+                            res.send("Offer rejected!");
+                        })
+                        .catch((err) => {
+                            res.status(500).send(err);
+                        });
+                } else {
+                    res.status(404).send("Offer not found.");
+                }
+            })
+            .catch((err) => {
+                res.status(500).send(err);
+            });
+    });
+
+    app.post('/offeredRide/paid', (req, res) => {
+        const { metaid, userid } = req.body;
+        OfferedRide.findOne({ metaid: metaid })
+            .then((ride) => {
+                // Find the index of the offer with the given userid in the offers array
+                const offerIndex = ride.offers.findIndex((offer) => offer.userid === userid);
+                if (offerIndex !== -1) {
+                    ride.offers[offerIndex].paid = true;
+                    ride.markModified('offers'); // Mark offers array as modified
+                    ride.save()
+                        .then(() => {
+                            res.send("Payment confirmed!");
+                        })
+                        .catch((err) => {
+                            res.status(500).send(err);
+                        });
+                } else {
+                    res.status(404).send("Offer not found.");
+                }
+            })
+            .catch((err) => {
+                res.status(500).send(err);
+            });
+    });
+
+    app.post('/offeredRide/acceptAndPay', (req, res) => {
+        const { metaid, userid, passengerCount } = req.body;
     });
 
     setInterval(() => {
