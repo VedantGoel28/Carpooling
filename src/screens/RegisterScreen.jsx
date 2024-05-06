@@ -33,7 +33,7 @@ const RegisterScreen = () => {
 
       <div className="app-image">
       <img src={car} alt="" data-aos="slide-left"/>
-      <h1><ReactTyped strings={["BlockChain Powered Car Pooling", "A Revolution in the world of Car Pooling","'Decentralization' for Trust and Security","Ensuring money security","Secure payments b/w users"]} typeSpeed={20} backSpeed={10} loop/></h1>
+      <h1 className="typed"><ReactTyped strings={["BlockChain Powered Car Pooling", "A Revolution in the world of Car Pooling","'Decentralization' for Trust and Security","Ensuring money security","Secure payments b/w users"]} typeSpeed={20} backSpeed={10} loop/></h1>
       </div>
       <div className="app-options">
         <div className="wlc-msg" data-aos="fade-up">

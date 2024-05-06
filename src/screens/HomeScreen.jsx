@@ -148,22 +148,21 @@ const HomeScreen = () => {
       </div>
       <hr className="rule1" data-aos="fade-up" />
       <br />
-      <br />
       <hr className="rule2" data-aos="fade-down" />
 
       <div className="homescreen-body">
         <h1 data-aos="fade-up">
-          <u>Enter Details For The Ride</u>
+          <u>Let's Go For A Ride!</u>
         </h1>
         <div className="rideDetails">
-          <div className="rideImage">
+          <div className="rideImage" data-aos="fade-left">
             <img src={car} alt="Car Image" />
           </div>
-          <div className="rideForm">
-            <h2>"Get Your Ride!"</h2>
+          <div className="rideForm" data-aos="fade-up">
+            <h2>"Choose What You Desire"</h2>
             <br />
             <br />
-            <h3>Enter Source</h3>
+            {/* <h3>Enter Source</h3>
             <br />
             <input
               type="text"
@@ -185,7 +184,7 @@ const HomeScreen = () => {
             <br />
             <h3>Enter Date</h3>
             <br />
-            <input type="date" name="date" id="date" className="ip" />
+            <input type="date" name="date" id="date" className="ip" /> */}
             {/* <button type="submit" value="Send" className="submitBtn">
               Submit
             </button> */}

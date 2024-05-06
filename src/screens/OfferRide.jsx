@@ -356,7 +356,8 @@ const OfferRide = ({ apiKey }) => {
           <h1>"Offer Your Ride"</h1>{" "}
         </div>
 
-        <form className="inputForm">
+        <form>
+          <div className="inputForm">
           <div className="formLine line1">
             <div className="firstObj">
               <div className="icon">
@@ -453,6 +454,7 @@ const OfferRide = ({ apiKey }) => {
               </select>
             </div>
           </div>
+          </div>
           <div className="btn1">
             <button
               onClick={handleSubmit}
@@ -461,8 +463,11 @@ const OfferRide = ({ apiKey }) => {
                 padding: "1rem",
                 border: "none",
                 marginBottom: "1rem",
-                backgroundColor: "#A3D8FF",
+                background: "rgb(45, 167, 243)",
                 borderRadius: "10px",
+                fontSize: "larger",
+                fontWeight: "700",
+                width: "15rem",
               }}
             >
               Offer Ride
