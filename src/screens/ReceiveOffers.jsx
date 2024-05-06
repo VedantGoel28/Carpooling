@@ -140,33 +140,57 @@ const ReceiveOffers = () => {
           console.error("Failed to fetch offers:", error);
         });
     }
+
+    socket.on("reject", (data) => {
+      alert(
+        `Your negotiation of ₹${data.offered} for ${data.pickup.substr(
+          0,
+          25
+        )} to ${data.drop.substr(0, 25)} has been rejected by ${data.username}`
+      );
+    });
+
+    return () => {
+      socket.off("reject");
+    };
   }, [user]);
 
   const onClickCard = (offer) => {
     setSelectedOffer(offer);
     setShowNegotiateForm(true);
   };
-  const onCloseNegotiationForm = () => {
+  const onCloseNegotiationForm = async () => {
+    socket.emit("rejectrider", {
+      driver_id: user?.primaryWeb3Wallet.web3Wallet,
+      userid: selectedOffer.userid,
+      drivername: user?.username,
+    });
+    await axios.post("http://localhost:9000/offeredRide/rejectOffer", {
+      metaid: user.primaryWeb3Wallet.web3Wallet,
+      userid: selectedOffer.userid,
+    });
     setShowNegotiateForm(false);
   };
 
   const handleAccept = () => {
-    axios
-      .post("http://localhost:9000/offeredRide/acceptOffer", {
-        metaid: user.primaryWeb3Wallet.web3Wallet,
-        offerid: selectedOffer.userid,
-      })
-      .then((res) => {
-        console.log(res);
-        setShowNegotiateForm(false);
-      })
-      .catch((error) => {
-        console.error("Failed to accept offer:", error);
-      });
+    // axios
+    //   .post("http://localhost:9000/offeredRide/acceptOffer", {
+    //     metaid: user.primaryWeb3Wallet.web3Wallet,
+    //     offerid: selectedOffer.userid,
+    //   })
+    //   .then((res) => {
+    //     console.log(res);
+    //     setShowNegotiateForm(false);
+    //   })
+    //   .catch((error) => {
+    //     console.error("Failed to accept offer:", error);
+    //   });
     socket.emit("acceptOffer", {
       acceptedamt: selectedOffer.offeredamt,
       userid: selectedOffer.userid,
+      passengerCount: selectedOffer.passengerCount,
       driver_id: user?.primaryWeb3Wallet.web3Wallet,
+      drivername: user?.username,
     });
     setShowNegotiateForm(false);
   };
@@ -191,15 +215,17 @@ const ReceiveOffers = () => {
       <AppNav />
       <div>
         {offers.length > 0 ? (
-          offers.map((offer) => {
-            return (
-              <OffersCard
-                key={offer.userid}
-                offer={offer}
-                handleClick={onClickCard}
-              />
-            );
-          })
+          offers
+            .filter((offer) => !offer.rejected)
+            .map((offer) => {
+              return (
+                <OffersCard
+                  key={offer.userid}
+                  offer={offer}
+                  handleClick={onClickCard}
+                />
+              );
+            })
         ) : (
           <div>No offers found</div>
         )}

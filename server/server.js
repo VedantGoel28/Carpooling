@@ -43,6 +43,17 @@ function startServer() {
             console.log(`Negotiating offer with ${data.userid}`);
             socket.to(data.driver_id).emit(`negotiate`, data);
         });
+
+        socket.on('rejectOffer', (data) => {
+            console.log(`Rejecting offer from ${data.userid}`);
+            socket.to(data.driver_id).emit(`reject`, data);
+        }
+        );
+
+        socket.on("rejectrider", (data) => {
+            console.log(`Rejecting rider ${data.userid}`);
+            socket.to(data.driver_id).emit(`rejectride`, data);
+        });
     });
 
     app.post('/offeredRide/post', (req, res) => {
@@ -65,11 +76,36 @@ function startServer() {
 
     app.post('/offeredRide/updateOffers', (req, res) => {
         const { metaid, userid, username, contact, offeredamt, usrsrc, usrdst, passengerscnt } = req.body;
-        OfferedRide.findOneAndUpdate({ metaid: metaid }, { $push: { offers: { userid: userid, username: username, contact: contact, offeredamt: offeredamt, usrsrc: usrsrc, usrdst: usrdst, passengerCount: parseInt(passengerscnt), accepted: false, paid: false, rejected: false } } }).then((ride) => {
-            res.send("Offer added successfully!");
-        }).catch((err) => {
-            res.send(err);
-        });
+        // OfferedRide.findOneAndUpdate({ metaid: metaid }, { $push: { offers: { userid: userid, username: username, contact: contact, offeredamt: offeredamt, usrsrc: usrsrc, usrdst: usrdst, passengerCount: parseInt(passengerscnt), accepted: false, paid: false, rejected: false } } }).then((ride) => {
+        //     res.send("Offer added successfully!");
+        // }).catch((err) => {
+        //     res.send(err);
+        // });
+        OfferedRide.findOne({ metaid: metaid }).then((ride) => {
+            const OfferIndex = ride.offers.findIndex((offer) => offer.userid === userid);
+            if (OfferIndex !== -1) {
+                ride.offers[OfferIndex].offeredamt = offeredamt;
+                ride.offers[OfferIndex].usrsrc = usrsrc;
+                ride.offers[OfferIndex].usrdst = usrdst;
+                ride.offers[OfferIndex].username = username;
+                ride.offers[OfferIndex].passengerCount = parseInt(passengerscnt);
+                ride.markModified('offers');
+                ride.save().then(() => {
+                    res.send("Offer updated successfully!");
+                }).catch((err) => {
+                    res.send(err);
+                });
+            }
+            else {
+                ride.offers.push({ userid: userid, username: username, contact: contact, offeredamt: offeredamt, usrsrc: usrsrc, usrdst: usrdst, passengerCount: parseInt(passengerscnt), accepted: false, paid: false, rejected: false });
+                ride.save().then(() => {
+                    res.send("Offer added successfully!");
+                }).catch((err) => {
+                    res.send(err);
+                });
+            }
+        })
+
     });
 
 

@@ -5,6 +5,7 @@ import formBg from "../assets/gmap_bg.jpg";
 import { useUser } from "@clerk/clerk-react";
 import AppNav from "../components/AppNav";
 import { io } from "socket.io-client";
+import { set } from "mongoose";
 const socket = io.connect("http://localhost:9001");
 
 const NegotiationForm = ({ onClose, offer, onNegotiate, onAccept }) => {
@@ -145,6 +146,7 @@ const OfferRide = ({ apiKey }) => {
   }, [directionsService, source, destination]);
 
   useEffect(() => {
+    socket.emit("join", user?.primaryWeb3Wallet.web3Wallet);
     if (user && user.primaryWeb3Wallet && user.primaryWeb3Wallet.web3Wallet) {
       // Socket listener for receiving offers
       socket.emit("join", user?.primaryWeb3Wallet.web3Wallet);
@@ -154,10 +156,24 @@ const OfferRide = ({ apiKey }) => {
           setoffers((prevOffers) => [...prevOffers, data]);
         }
       });
+      socket.on("reject", (data) => {
+        alert(
+          `Your negotiation of ₹${data.offered} for ${data.pickup.substr(
+            0,
+            25
+          )} to ${data.drop.substr(0, 25)} has been rejected by ${
+            data.username
+          }`
+        );
+        setoffers((prevOffers) =>
+          prevOffers.filter((offer) => offer !== data.userid)
+        );
+      });
 
       // Clean up socket listener
       return () => {
         socket.off("recieveOffer");
+        socket.off("reject");
       };
     }
   }, []);
@@ -199,38 +215,43 @@ const OfferRide = ({ apiKey }) => {
       driver_id: user?.primaryWeb3Wallet.web3Wallet,
       userid: offers[currentOfferIndex].userid,
       negotiatedamt: negotiateAmt,
-      passengerCount: offers[currentOfferIndex].passengerscnt,
+      passengerCount: offers[currentOfferIndex].passengers_count,
       drivername: user?.username,
       drivercontact: user?.primaryPhoneNumber.phoneNumber,
-      pickup: offers[currentOfferIndex].usrsrc,
-      drop: offers[currentOfferIndex].usrdst,
+      pickup: offers[currentOfferIndex].source,
+      drop: offers[currentOfferIndex].dest,
     });
     // Move to next offer after negotiation
     setCurrentOfferIndex((prevIndex) => prevIndex + 1);
+    setShowNegotiateForm(false);
   };
 
   const handleAccept = () => {
     // Handle accept logic here
     console.log("Offer accepted");
-    axios.post("http://localhost:9000/offeredRide/acceptOffer", {
-      metaid: user?.primaryWeb3Wallet.web3Wallet,
-      userid: offers[currentOfferIndex].userid,
-      passengerCount: offers[currentOfferIndex].passengerscnt,
-      acceptedamt: offers[currentOfferIndex].offered,
-    });
     socket.emit("acceptOffer", {
       acceptedamt: offers[currentOfferIndex].offered,
       userid: offers[currentOfferIndex].userid,
       driver_id: user?.primaryWeb3Wallet.web3Wallet,
-      passengerCount: offers[currentOfferIndex].passengerscnt,
+      passengerCount: offers[currentOfferIndex].passengers_count,
+      drivername: user?.username,
     });
     // Move to next offer after acceptance
     setCurrentOfferIndex((prevIndex) => prevIndex + 1);
     setShowNegotiateForm(false);
   };
 
-  const handleCloseNegotiationForm = () => {
+  const handleCloseNegotiationForm = async () => {
     // Close negotiation form
+    socket.emit("rejectrider", {
+      driver_id: user?.primaryWeb3Wallet.web3Wallet,
+      userid: offers[currentOfferIndex].userid,
+      drivername: user?.username,
+    });
+    await axios.post("http://localhost:9000/offeredRide/rejectOffer", {
+      metaid: user.primaryWeb3Wallet.web3Wallet,
+      userid: selectedOffer.userid,
+    });
     setShowNegotiateForm(false);
   };
 
