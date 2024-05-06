@@ -235,6 +235,9 @@ const OfferRide = ({ apiKey }) => {
       driver_id: user?.primaryWeb3Wallet.web3Wallet,
       passengerCount: offers[currentOfferIndex].passengers_count,
       drivername: user?.username,
+      pickup: offers[currentOfferIndex].source,
+      drop: offers[currentOfferIndex].dest,
+      drivercontact: user?.primaryPhoneNumber.phoneNumber,
     });
     // Move to next offer after acceptance
     setCurrentOfferIndex((prevIndex) => prevIndex + 1);

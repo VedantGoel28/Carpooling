@@ -47,6 +47,11 @@ const ConfirmForm = ({ onClose, ride, src, dest }) => {
       passengers_count: passengers,
       driver_id: ride.metaid,
     };
+
+    if (passengers > ride.availableSeats) {
+      alert("Not enough seats available");
+      return;
+    }
     const broadcast = socket.emit("sendoffer", data);
     axios.post("http://localhost:9000/offeredRide/updateOffers", {
       metaid: data.driver_id,
@@ -283,8 +288,20 @@ const BookRide = () => {
       socket.on(`offeraccepted`, (data) => {
         if (data.userid === user.primaryWeb3Wallet.web3Wallet) {
           alert(
-            `Your offer of ${data.acceptedamt} has been accepted by ${data.drivername}`
+            `Your offer of ₹${data.acceptedamt} has been accepted by ${data.drivername}`
           );
+          navigate("/payment", {
+            state: {
+              drivername: data.drivername,
+              acceptedamt: data.acceptedamt,
+              pickup: data.pickup,
+              drop: data.drop,
+              driverid: data.driver_id,
+              userid: data.userid,
+              passengerCount: data.passengerCount,
+              drivercontact: data.drivercontact,
+            },
+          });
         }
       });
 
@@ -441,6 +458,18 @@ const BookRide = () => {
       passengerCount: negotiationDetails.passengerCount,
     });
     setForm(false);
+    navigate("/payment",{
+      state:{
+        drivername: negotiationDetails.drivername,
+        acceptedamt: negotiationDetails.negotiatedamt,
+        pickup: negotiationDetails.pickup,
+        drop: negotiationDetails.drop,
+        driverid: negotiationDetails.driver_id,
+        userid: negotiationDetails.userid,
+        passengerCount: negotiationDetails.passengerCount,
+        drivercontact: negotiationDetails.drivercontact,
+      }
+    });
   };
 
   const onClickReject = async () => {
