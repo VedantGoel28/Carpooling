@@ -96,14 +96,14 @@ const HomeScreen = () => {
       <div className="carousel" id="myCarousel">
         <div className="carousel-inner">
           <div className="carousel-item active" data-aos="fade-up">
-            <img src={img1} alt="Image 1" />
+            <img src={img1} alt="Image 1" className="image" />
             <div className="carousel-caption">
               <h4>BlockChain Powered Car Pooling</h4>
               <h6>A Revolution in the world of Car Pooloing.</h6>
             </div>
           </div>
           <div className="carousel-item">
-            <img src={img2} alt="Image 2" />
+            <img src={img2} alt="Image 2" className="image" />
             <div className="carousel-caption">
               <h4>Multiple Upsides</h4>
               <h6>
@@ -113,7 +113,7 @@ const HomeScreen = () => {
             </div>
           </div>
           <div className="carousel-item">
-            <img src={img3} alt="Image 3" />
+            <img src={img3} alt="Image 3" className="image" />
             <div className="carousel-caption">
               <h4>Decentralization</h4>
               <h6>
@@ -123,7 +123,7 @@ const HomeScreen = () => {
             </div>
           </div>
           <div className="carousel-item">
-            <img src={img4} alt="Image 4" />
+            <img src={img4} alt="Image 4" className="image" />
             <div className="carousel-caption">
               <h4>Smart Contracts</h4>
               <h6>
@@ -133,7 +133,7 @@ const HomeScreen = () => {
             </div>
           </div>
           <div className="carousel-item">
-            <img src={img5} alt="Image 5" />
+            <img src={img5} alt="Image 5" className="image" />
             <div className="carousel-caption">
               <h4>Join Us!!</h4>
               <h6>
@@ -156,10 +156,10 @@ const HomeScreen = () => {
         </h1>
         <div className="rideDetails">
           <div className="rideImage" data-aos="fade-left">
-            <img src={car} alt="Car Image" />
+            <img src={car} alt="Car Image" data-aos="zoom-in" data-aos-offset="300"/>
           </div>
           <div className="rideForm" data-aos="fade-up">
-            <h2>"Choose What You Desire"</h2>
+            <h2 data-aos="flip-up" data-aos-offset="300">"Choose What You Desire"</h2>
             <br />
             <br />
             {/* <h3>Enter Source</h3>
@@ -188,10 +188,10 @@ const HomeScreen = () => {
             {/* <button type="submit" value="Send" className="submitBtn">
               Submit
             </button> */}
-            <button className="btn" onClick={onClickBookRide}>
+            <button className="btn" onClick={onClickBookRide} data-aos="zoom-in-left">
               Book a Ride
             </button>
-            <button className="btn" onClick={onClickOfferRide}>
+            <button className="btn" onClick={onClickOfferRide} data-aos="zoom-in-right">
               Offer a Ride
             </button>
           </div>

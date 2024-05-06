@@ -9,7 +9,7 @@ const AppNav = () => {
       <div className="company-name" data-aos="slide-left">
         Ether Shuttle
       </div>
-      <div style={{ display: "flex", alignItems: "center", gap: "1rem"}}>
+      <div className="rightNav" style={{ display: "flex", alignItems: "center", gap: "1rem"}}>
         <div className="nav-links" data-aos="slide-right">
           <NavLink to="/offers" className="nav-link">
             OFFERS
