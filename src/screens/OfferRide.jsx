@@ -158,7 +158,12 @@ const OfferRide = ({ apiKey }) => {
       });
       socket.on("reject", (data) => {
         alert(
-          `Your negotiation of ${data.offered} for ${data.pickup} to ${data.drop} has been rejected by ${data.username}`
+          `Your negotiation of ₹${data.offered} for ${data.pickup.substr(
+            0,
+            25
+          )} to ${data.drop.substr(0, 25)} has been rejected by ${
+            data.username
+          }`
         );
         setoffers((prevOffers) =>
           prevOffers.filter((offer) => offer !== data.userid)
