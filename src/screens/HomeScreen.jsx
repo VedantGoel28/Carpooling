@@ -197,6 +197,7 @@ const HomeScreen = () => {
           </div>
         </div>
       </div>
+      <br />
 
       <div className="footer">
         Copyright &#169; 2024 Ether-Shuttle. All rights received.

@@ -6,6 +6,7 @@ import { useUser } from "@clerk/clerk-react";
 import AppNav from "../components/AppNav";
 import { io } from "socket.io-client";
 import { set } from "mongoose";
+import Footer from "../components/Footer";
 const socket = io.connect("http://localhost:9001");
 
 const NegotiationForm = ({ onClose, offer, onNegotiate, onAccept }) => {
@@ -368,17 +369,17 @@ const OfferRide = ({ apiKey }) => {
   const [carnumber, setCarnumber] = useState("");
   return (
     <div>
-      <AppNav />
       <div className="outer">
+      <AppNav />
+        {/* <br /> */}
         <br />
-        <br />
-        <div className="topHeading">
+        <div className="topHeading" data-aos="flip-up">
           {" "}
           <h1>"Offer Your Ride"</h1>{" "}
         </div>
 
         <form>
-          <div className="inputForm">
+          <div className="inputForm" data-aos="zoom-in-up">
           <div className="formLine line1">
             <div className="firstObj">
               <div className="icon">
@@ -502,10 +503,11 @@ const OfferRide = ({ apiKey }) => {
             width: "80%",
             border: "5px",
             borderRadius: "50px",
-            marginLeft: "9.5rem",
+            marginLeft: "10%",
           }}
           ref={mapRef}
         ></div>
+        <br />
       </div>
       {showNegotiateForm && (
         <div className="overlay">
@@ -517,6 +519,7 @@ const OfferRide = ({ apiKey }) => {
           />
         </div>
       )}
+      <Footer/>
     </div>
   );
 };
