@@ -6,6 +6,7 @@ import {
   Marker,
   Autocomplete,
   DirectionsRenderer,
+  DirectionsService,
 } from "@react-google-maps/api";
 import { Placeholder } from "react-bootstrap";
 import "../styles/bookride.css";
@@ -244,12 +245,14 @@ const BookRide = () => {
   const baseurl = import.meta.env.VITE_BASE_URL;
   const sourceRef = useRef();
   const destRef = useRef();
+  const [filteredRides, setFilteredRides] = useState([]);
 
   useEffect(() => {
     const fetchRides = async () => {
       try {
         const response = await axios.get(baseurl + "/get");
         setRides(response.data);
+        setFilteredRides(response.data);
       } catch (error) {
         console.error("Failed to fetch rides:", error);
       }
@@ -280,7 +283,7 @@ const BookRide = () => {
       socket.on(`offeraccepted`, (data) => {
         if (data.userid === user.primaryWeb3Wallet.web3Wallet) {
           alert(
-            `Your offer of ${data.acceptedamt} has been accepted by ${data.driver_id}`
+            `Your offer of ${data.acceptedamt} has been accepted by ${data.drivername}`
           );
         }
       });
@@ -293,20 +296,28 @@ const BookRide = () => {
         }
       });
 
+      socket.on(`rejectride`, (data) => {
+        if (data.userid === user.primaryWeb3Wallet.web3Wallet) {
+          alert(`${data.drivername} has rejected your offer.`);
+        }
+      });
+
       return () => {
         socket.off(`recieveoffer`);
         socket.off(`offeraccepted`);
         socket.off(`negotiate`);
+        socket.off("rejectride");
       };
     }
   }, [user]);
-
+  const geocoder = new google.maps.Geocoder();
   const calculateRoute = async () => {
-    if (sourceRef.current.value == "" || destRef.current.value == "") {
+    if (sourceRef.current.value === "" || destRef.current.value === "") {
       return;
     }
 
     const directionsService = new google.maps.DirectionsService();
+
     const results = await directionsService.route({
       origin: sourceRef.current.value,
       destination: destRef.current.value,
@@ -314,6 +325,97 @@ const BookRide = () => {
     });
 
     setDirectionResponse(results);
+
+    try {
+      const pickuplatlng = new google.maps.LatLng(sourceRef.current.value);
+      const droplatlng = new google.maps.LatLng(destRef.current.value);
+
+      // Execute filtering for each ride asynchronously
+      const filtered = await Promise.all(
+        rides.map(async (ride) => {
+          const createPath = await directionsService.route({
+            origin: ride.source,
+            destination: ride.dest,
+            travelMode: google.maps.TravelMode.DRIVING,
+          });
+          const routePath = createPath.routes[0].overview_path;
+
+          const sourceWithinRoute = google.maps.geometry.poly.isLocationOnEdge(
+            pickuplatlng,
+            new google.maps.Polyline({ path: routePath }),
+            0.03 // Tolerance
+          );
+          const destinationWithinRoute =
+            google.maps.geometry.poly.isLocationOnEdge(
+              droplatlng,
+              new google.maps.Polyline({ path: routePath }),
+              0.03 // Tolerance
+            );
+
+          if (sourceWithinRoute && destinationWithinRoute) {
+            return true;
+          }
+
+          if (sourceWithinRoute || destinationWithinRoute) {
+            const otherPoint = sourceWithinRoute ? droplatlng : pickuplatlng;
+            const nearestDistance = calculateNearestDistanceToRoute(
+              otherPoint,
+              routePath
+            );
+            return nearestDistance <= 5000; // 5km in meters
+          }
+
+          const distanceToRoute = calculateNearestDistanceToRoute(
+            pickuplatlng,
+            routePath
+          );
+          const distanceToRoute2 = calculateNearestDistanceToRoute(
+            droplatlng,
+            routePath
+          );
+          return distanceToRoute <= 5000 && distanceToRoute2 <= 5000; // 5km in meters
+        })
+      );
+
+      // Filter out rides that do not fulfill the conditions
+      const filteredRides = rides.filter((_, index) => filtered[index]);
+      setFilteredRides(filteredRides);
+    } catch (error) {
+      console.error("Error calculating route:", error);
+    }
+  };
+
+  // const geocode = (geocoder, address) => {
+  //   return new Promise((resolve, reject) => {
+  //     geocoder.geocode({ address }, (results, status) => {
+  //       if (status === "OK") {
+  //         resolve(results[0].geometry.location);
+  //       } else {
+  //         reject(
+  //           `Geocode was not successful for the following reason: ${status}`
+  //         );
+  //       }
+  //     });
+  //   });
+  // };
+
+  const calculateNearestDistanceToRoute = (point, routePath) => {
+    let minDistance = Infinity;
+
+    for (let i = 0; i < routePath.length - 1; i++) {
+      const start = routePath[i];
+      const end = routePath[i + 1];
+      const distance = google.maps.geometry.spherical.computeDistanceBetween(
+        point,
+        google.maps.geometry.spherical.interpolate(start, end, 0.5)
+      );
+
+      if (distance < minDistance) {
+        minDistance = distance;
+      }
+    }
+
+    return minDistance;
   };
 
   const navigate = useNavigate();
@@ -342,6 +444,18 @@ const BookRide = () => {
   };
 
   const onClickReject = async () => {
+    axios.post("http://localhost:9000/offeredRide/rejectOffer", {
+      userid: negotiationDetails.userid,
+      metaid: negotiationDetails.driver_id,
+    });
+    socket.emit("rejectOffer", {
+      driver_id: negotiationDetails.driver_id,
+      userid: negotiationDetails.userid,
+      username: user.username,
+      pickup: negotiationDetails.pickup,
+      drop: negotiationDetails.drop,
+      offered: negotiationDetails.negotiatedamt,
+    });
     setForm(false);
   };
 
@@ -490,9 +604,9 @@ const BookRide = () => {
       >
         Available Rides
       </h2>
-      {rides.length > 0 ? (
+      {filteredRides.length > 0 ? (
         <div className="ride-list">
-          {rides.map((ride, index) =>
+          {filteredRides.map((ride, index) =>
             ride.metaid !== user?.primaryWeb3Wallet?.web3Wallet ? (
               <RideCard
                 key={index}
