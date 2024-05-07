@@ -282,6 +282,16 @@ function startServer() {
         })
     });
 
+    app.post('/getPastRides', (req, res) => {
+        const { metaid } = req.body;
+        User.findOne({ metaid: metaid }).then((response) => {
+            const rides = response.data.pastRides;
+            res.send(rides);
+        }).catch((err) => {
+            res.send(err);
+        })
+    });
+
     // app.post('/offeredRide/acceptAndPay', (req, res) => {
     //     const { metaid, userid, passengerCount } = req.body;
     // });
