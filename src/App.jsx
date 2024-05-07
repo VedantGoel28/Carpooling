@@ -13,6 +13,7 @@ import PaymentScreen from "./screens/PaymentScreen";
 import Success from "./screens/success";
 import Cancel from "./screens/cancel";
 import ReceiveOffers from "./screens/ReceiveOffers";
+import PastRides from "./screens/PastRides";
 
 function App() {
   const user = useUser();
@@ -36,6 +37,12 @@ function App() {
         element={<OfferRide apiKey="AIzaSyDL5-CyNG5jVL9Kp62pDanJqwipxWV3-b0" />}
       />
       <Route path="/offers" element={<ReceiveOffers />} />
+      <Route path="/payment" element={<PaymentScreen></PaymentScreen>} />
+      <Route
+        path="/success/:driverid/:userid/:passengerCount"
+        element={<Success></Success>}
+      />
+      <Route path="/pastRides" element={<PastRides></PastRides>}></Route>
       <Route path="*" element={<h1>404:Page not found</h1>} />
     </Routes>
   );

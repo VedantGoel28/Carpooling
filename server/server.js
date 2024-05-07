@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import http from 'http';
 import { Server } from 'socket.io';
+import axios from 'axios';
 dotenv.config();
 
 mongoose.connect(process.env.MONGO_ETHERSHUTTLE_URI).then(() => console.log('Connected to MongoDB')).catch((err) => console.log(err));
@@ -134,7 +135,20 @@ function startServer() {
     });
 
     app.post('/saveRide', async (req, res) => {
-        const { metaid, driver, source, dest, amountPaid, passengerCount, carNumber } = req.body;
+        const { metaid, drivername, source, dest, amountPaid, passengerCount, driverContact, carNumber } = req.body;
+
+        User.findOne({ metaid: metaid }).then((user) => {
+            user.pastRides.push({ drivername: drivername, pickup: source, drop: dest, amountPaid: amountPaid, passengerCount: passengerCount, driverContact: driverContact, carNumber: carNumber });
+
+            user.markModified('pastRides');
+            user.save().then(() => {
+                res.send("Ride saved successfully!");
+            }).catch((err) => {
+                res.send(err);
+            });
+        }).catch((err) => {
+            res.send(err);
+        });
     });
 
     app.post('/offeredRide/acceptOffer', (req, res) => {
@@ -146,7 +160,6 @@ function startServer() {
                 if (offerIndex !== -1) {
                     // Update the accepted field of the offer to true
                     ride.offers[offerIndex].accepted = true;
-                    ride.availableSeats -= passengerCount;
                     ride.offers[offerIndex].offeredamt = acceptedamt;
                     // Save the updated document
                     ride.markModified('offers'); // Mark offers array as modified
@@ -194,33 +207,94 @@ function startServer() {
     });
 
     app.post('/offeredRide/paid', (req, res) => {
-        const { metaid, userid } = req.body;
+        const { metaid, userid, passengerCount } = req.body;
         OfferedRide.findOne({ metaid: metaid })
             .then((ride) => {
                 // Find the index of the offer with the given userid in the offers array
                 const offerIndex = ride.offers.findIndex((offer) => offer.userid === userid);
                 if (offerIndex !== -1) {
                     ride.offers[offerIndex].paid = true;
+                    ride.offers[offerIndex].accepted = true;
+                    ride.availableSeats -= passengerCount;
+                    if (ride.availableSeats == 0) {
+                        ride.active = false;
+                    }
                     ride.markModified('offers'); // Mark offers array as modified
                     ride.save()
                         .then(() => {
-                            res.send("Payment confirmed!");
+                            res.send({
+                                offer: ride.offers[offerIndex],
+                                drivername: ride.driver,
+                                carNumber: ride.carNumber,
+                                drivercontact: ride.contact,
+                            });
                         })
                         .catch((err) => {
                             res.status(500).send(err);
                         });
-                } else {
+
+                    if (!ride.active) {
+                        const acceptedAndPaid = ride.offers.filter((offer) => {
+                            return offer.accepted && offer.paid;
+                        });
+                        const totalBookedSeats = acceptedAndPaid.reduce((acc, offer) => {
+                            return acc + offer.passengerCount;
+                        }, 0);
+                        console.log('Ride deactivated');
+                        axios.post('http://localhost:9000/saveOfferedRide', {
+                            metaid: ride.metaid,
+                            source: ride.source,
+                            dest: ride.dest,
+                            time: ride.time,
+                            carName: ride.carName,
+                            seatsBooked: totalBookedSeats,
+                            carNumber: ride.carNumber,
+                            acceptedOffers: acceptedAndPaid
+                        })
+                    }
+                }
+
+                else {
                     res.status(404).send("Offer not found.");
                 }
+
+
             })
-            .catch((err) => {
-                res.status(500).send(err);
-            });
     });
 
-    app.post('/offeredRide/acceptAndPay', (req, res) => {
-        const { metaid, userid, passengerCount } = req.body;
+    app.post('/saveOfferedRide', (req, res) => {
+        const { metaid, source, dest, time, seatsBooked, carName, carNumber, acceptedOffers } = req.body;
+        User.findOne({ metaid: metaid }).then((user) => {
+            user.offeredRides.push({
+                source: source,
+                dest: dest,
+                time: time,
+                seatsBooked: seatsBooked,
+                carName: carName,
+                carNumber: carNumber,
+                acceptedOffers: acceptedOffers
+            });
+            user.save().then(() => {
+                res.send("Offered ride saved successfully!");
+            }).catch((err) => {
+                res.send(err);
+            });
+        })
     });
+
+    app.post('/getPastRides', (req, res) => {
+        const { metaid } = req.body;
+        User.findOne({ metaid: metaid }).then((response) => {
+            const rides = response.data.pastRides;
+            res.send(rides);
+        }).catch((err) => {
+            res.send(err);
+        })
+    });
+
+    // app.post('/offeredRide/acceptAndPay', (req, res) => {
+    //     const { metaid, userid, passengerCount } = req.body;
+    // });
 
     setInterval(() => {
         OfferedRide.deleteMany({ active: false })

@@ -193,6 +193,9 @@ const ReceiveOffers = () => {
       passengerCount: selectedOffer.passengerCount,
       driver_id: user?.primaryWeb3Wallet.web3Wallet,
       drivername: user?.username,
+      pickup: selectedOffer.usrsrc,
+      drop: selectedOffer.usrdst,
+      drivercontact: user?.primaryPhoneNumber.phoneNumber,
     });
     setShowNegotiateForm(false);
   };

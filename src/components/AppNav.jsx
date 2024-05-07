@@ -14,6 +14,9 @@ const AppNav = () => {
           <NavLink to="/offers" className="nav-link">
             OFFERS
           </NavLink>
+          <NavLink to="/pastRides" className="nav-link">
+            PreviousRides
+          </NavLink>
         </div>
         <div className="user-button-container" data-aos="slide-right">
           <UserButton

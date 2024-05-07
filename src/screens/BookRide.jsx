@@ -16,7 +16,7 @@ import axios from "axios";
 import io from "socket.io-client";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "@clerk/clerk-react";
-import { set } from "mongoose";
+import { get, set } from "mongoose";
 
 const socket = io.connect("http://localhost:9001");
 const ConfirmForm = ({ onClose, ride, src, dest }) => {
@@ -48,6 +48,11 @@ const ConfirmForm = ({ onClose, ride, src, dest }) => {
       passengers_count: passengers,
       driver_id: ride.metaid,
     };
+
+    if (passengers > ride.availableSeats) {
+      alert("Not enough seats available");
+      return;
+    }
     const broadcast = socket.emit("sendoffer", data);
     axios.post("http://localhost:9000/offeredRide/updateOffers", {
       metaid: data.driver_id,
@@ -273,8 +278,8 @@ const BookRide = () => {
         (error) => console.log(error)
       );
     }
-    const intervalId = setInterval(fetchRides, 60 * 1000);
-    return () => clearInterval(intervalId);
+    // const intervalId = setInterval(fetchRides, 60 * 1000);
+    // return () => clearInterval(intervalId);
   }, []);
 
   useEffect(() => {
@@ -287,8 +292,20 @@ const BookRide = () => {
       socket.on(`offeraccepted`, (data) => {
         if (data.userid === user.primaryWeb3Wallet.web3Wallet) {
           alert(
-            `Your offer of ${data.acceptedamt} has been accepted by ${data.drivername}`
+            `Your offer of ₹${data.acceptedamt} has been accepted by ${data.drivername}`
           );
+          navigate("/payment", {
+            state: {
+              drivername: data.drivername,
+              acceptedamt: data.acceptedamt,
+              pickup: data.pickup,
+              drop: data.drop,
+              driverid: data.driver_id,
+              userid: data.userid,
+              passengerCount: data.passengerCount,
+              drivercontact: data.drivercontact,
+            },
+          });
         }
       });
 
@@ -327,81 +344,63 @@ const BookRide = () => {
       destination: destRef.current.value,
       travelMode: google.maps.TravelMode.DRIVING,
     });
-
     setDirectionResponse(results);
 
     try {
-      const pickuplatlng = new google.maps.LatLng(sourceRef.current.value);
-      const droplatlng = new google.maps.LatLng(destRef.current.value);
+      const pickuplatlngPromise = getLatlng(sourceRef.current.value);
+      const droplatlngPromise = getLatlng(destRef.current.value);
 
-      // Execute filtering for each ride asynchronously
-      const filtered = await Promise.all(
-        rides.map(async (ride) => {
-          const createPath = await directionsService.route({
-            origin: ride.source,
-            destination: ride.dest,
-            travelMode: google.maps.TravelMode.DRIVING,
-          });
-          const routePath = createPath.routes[0].overview_path;
+      // Await the promises to get the resolved values
+      const pickuplatlng = await pickuplatlngPromise;
+      const droplatlng = await droplatlngPromise;
 
-          const sourceWithinRoute = google.maps.geometry.poly.isLocationOnEdge(
-            pickuplatlng,
-            new google.maps.Polyline({ path: routePath }),
-            0.03 // Tolerance
-          );
-          const destinationWithinRoute =
-            google.maps.geometry.poly.isLocationOnEdge(
-              droplatlng,
-              new google.maps.Polyline({ path: routePath }),
-              0.03 // Tolerance
-            );
+      console.log(pickuplatlng, droplatlng);
 
-          if (sourceWithinRoute && destinationWithinRoute) {
-            return true;
-          }
+      const fetchRoutes = rides.map(async (ride) => {
+        const createPath = await directionsService.route({
+          origin: ride.source,
+          destination: ride.dest,
+          travelMode: google.maps.TravelMode.DRIVING,
+        });
+        return createPath.routes[0].overview_path;
+      });
 
-          if (sourceWithinRoute || destinationWithinRoute) {
-            const otherPoint = sourceWithinRoute ? droplatlng : pickuplatlng;
-            const nearestDistance = calculateNearestDistanceToRoute(
-              otherPoint,
-              routePath
-            );
-            return nearestDistance <= 5000; // 5km in meters
-          }
-
+      // Wait for all route calculations to complete using Promise.all
+      Promise.all(fetchRoutes).then((routePaths) => {
+        const filtered = rides.filter((ride, index) => {
           const distanceToRoute = calculateNearestDistanceToRoute(
             pickuplatlng,
-            routePath
+            routePaths[index]
           );
           const distanceToRoute2 = calculateNearestDistanceToRoute(
             droplatlng,
-            routePath
+            routePaths[index]
           );
-          return distanceToRoute <= 5000 && distanceToRoute2 <= 5000; // 5km in meters
-        })
-      );
-
-      // Filter out rides that do not fulfill the conditions
-      const filteredRides = rides.filter((_, index) => filtered[index]);
-      setFilteredRides(filteredRides);
+          return distanceToRoute <= 10000 && distanceToRoute2 <= 10000;
+        });
+        setFilteredRides(filtered);
+      });
     } catch (error) {
       console.error("Error calculating route:", error);
     }
   };
-
-  // const geocode = (geocoder, address) => {
-  //   return new Promise((resolve, reject) => {
-  //     geocoder.geocode({ address }, (results, status) => {
-  //       if (status === "OK") {
-  //         resolve(results[0].geometry.location);
-  //       } else {
-  //         reject(
-  //           `Geocode was not successful for the following reason: ${status}`
-  //         );
-  //       }
-  //     });
-  //   });
-  // };
+  const getLatlng = async (address) => {
+    return axios
+      .get(
+        `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
+          address
+        )}&key=${import.meta.env.VITE_GOOGLE_MAPS_API}`
+      )
+      .then((res) => {
+        const data = res.data;
+        const coordinates = data.results[0].geometry.location;
+        return coordinates;
+      })
+      .catch((error) => {
+        console.error("Error getting latitude and longitude:", error);
+        throw error; // Rethrow the error to handle it at a higher level
+      });
+  };
 
   const calculateNearestDistanceToRoute = (point, routePath) => {
     let minDistance = Infinity;
@@ -445,6 +444,18 @@ const BookRide = () => {
       passengerCount: negotiationDetails.passengerCount,
     });
     setForm(false);
+    navigate("/payment", {
+      state: {
+        drivername: negotiationDetails.drivername,
+        acceptedamt: negotiationDetails.negotiatedamt,
+        pickup: negotiationDetails.pickup,
+        drop: negotiationDetails.drop,
+        driverid: negotiationDetails.driver_id,
+        userid: negotiationDetails.userid,
+        passengerCount: negotiationDetails.passengerCount,
+        drivercontact: negotiationDetails.drivercontact,
+      },
+    });
   };
 
   const onClickReject = async () => {

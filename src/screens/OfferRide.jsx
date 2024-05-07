@@ -236,6 +236,9 @@ const OfferRide = ({ apiKey }) => {
       driver_id: user?.primaryWeb3Wallet.web3Wallet,
       passengerCount: offers[currentOfferIndex].passengers_count,
       drivername: user?.username,
+      pickup: offers[currentOfferIndex].source,
+      drop: offers[currentOfferIndex].dest,
+      drivercontact: user?.primaryPhoneNumber.phoneNumber,
     });
     // Move to next offer after acceptance
     setCurrentOfferIndex((prevIndex) => prevIndex + 1);
@@ -244,15 +247,15 @@ const OfferRide = ({ apiKey }) => {
 
   const handleCloseNegotiationForm = async () => {
     // Close negotiation form
-    socket.emit("rejectrider", {
-      driver_id: user?.primaryWeb3Wallet.web3Wallet,
-      userid: offers[currentOfferIndex].userid,
-      drivername: user?.username,
-    });
-    await axios.post("http://localhost:9000/offeredRide/rejectOffer", {
-      metaid: user.primaryWeb3Wallet.web3Wallet,
-      userid: selectedOffer.userid,
-    });
+    // socket.emit("rejectrider", {
+    //   driver_id: user?.primaryWeb3Wallet.web3Wallet,
+    //   userid: offers[currentOfferIndex].userid,
+    //   drivername: user?.username,
+    // });
+    // await axios.post("http://localhost:9000/offeredRide/rejectOffer", {
+    //   metaid: user.primaryWeb3Wallet.web3Wallet,
+    //   userid: selectedOffer.userid,
+    // });
     setShowNegotiateForm(false);
   };
 
@@ -380,102 +383,102 @@ const OfferRide = ({ apiKey }) => {
 
         <form>
           <div className="inputForm" data-aos="zoom-in-up">
-          <div className="formLine line1">
-            <div className="firstObj">
-              <div className="icon">
-                <i className="fa-solid fa-map-pin"></i>
+            <div className="formLine line1">
+              <div className="firstObj">
+                <div className="icon">
+                  <i className="fa-solid fa-map-pin"></i>
+                </div>
+                <input
+                  type="text"
+                  placeholder="Enter source"
+                  className="ip"
+                  ref={sourceInputRef}
+                  onChange={(e) => setSource(e.target.value)}
+                />
               </div>
-              <input
-                type="text"
-                placeholder="Enter source"
-                className="ip"
-                ref={sourceInputRef}
-                onChange={(e) => setSource(e.target.value)}
-              />
+
+              <div className="firstObj">
+                <div className="icon">
+                  <i className="fa-solid fa-car"></i>
+                </div>
+                <input
+                  type="text"
+                  name="carname"
+                  id="car"
+                  className="ip"
+                  value={carname}
+                  placeholder="Enter Car Name"
+                  onChange={(e) => setCarname(e.target.value)}
+                />
+              </div>
+
+              <div className="firstObj">
+                <div className="icon">
+                  <i className="fa-solid fa-clock"></i>
+                </div>
+                <input
+                  type="time"
+                  name="time"
+                  id="time"
+                  className="ip"
+                  value={time}
+                  onChange={(e) => {
+                    setTime(e.currentTarget.value);
+                  }}
+                />
+              </div>
             </div>
 
-            <div className="firstObj">
-              <div className="icon">
-                <i className="fa-solid fa-car"></i>
+            <div className="formLine line2">
+              <div className="secondObj">
+                <div className="icon">
+                  <i className="fa-solid fa-location-arrow"></i>
+                </div>
+                <input
+                  type="text"
+                  placeholder="Enter destination"
+                  className="ip"
+                  ref={destinationInputRef}
+                />
               </div>
-              <input
-                type="text"
-                name="carname"
-                id="car"
-                className="ip"
-                value={carname}
-                placeholder="Enter Car Name"
-                onChange={(e) => setCarname(e.target.value)}
-              />
-            </div>
 
-            <div className="firstObj">
-              <div className="icon">
-                <i className="fa-solid fa-clock"></i>
+              <div className="secondObj">
+                <div className="icon">
+                  <i className="fa-solid fa-rug"></i>
+                </div>
+                <input
+                  type="text"
+                  name="carnumber"
+                  id="carnumber"
+                  className="ip"
+                  placeholder="Enter Car Number"
+                  value={carnumber}
+                  onChange={(e) => setCarnumber(e.target.value)}
+                />
               </div>
-              <input
-                type="time"
-                name="time"
-                id="time"
-                className="ip"
-                value={time}
-                onChange={(e) => {
-                  setTime(e.currentTarget.value);
-                }}
-              />
-            </div>
-          </div>
 
-          <div className="formLine line2">
-            <div className="secondObj">
-              <div className="icon">
-                <i className="fa-solid fa-location-arrow"></i>
+              <div className="secondObj">
+                <div className="icon">
+                  <i className="fa-solid fa-person"></i>
+                </div>
+                <select
+                  id="seats"
+                  name="seats"
+                  className="dropdown ip"
+                  defaultValue={totalSeats}
+                  onChange={(e) => setTotalSeats(e.target.value)}
+                >
+                  <option value="1" className="ip">
+                    1
+                  </option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5">5</option>
+                  <option value="6">6</option>
+                </select>
               </div>
-              <input
-                type="text"
-                placeholder="Enter destination"
-                className="ip"
-                ref={destinationInputRef}
-              />
             </div>
-
-            <div className="secondObj">
-              <div className="icon">
-                <i className="fa-solid fa-rug"></i>
-              </div>
-              <input
-                type="text"
-                name="carnumber"
-                id="carnumber"
-                className="ip"
-                placeholder="Enter Car Number"
-                value={carnumber}
-                onChange={(e) => setCarnumber(e.target.value)}
-              />
-            </div>
-
-            <div className="secondObj">
-              <div className="icon">
-                <i className="fa-solid fa-person"></i>
-              </div>
-              <select
-                id="seats"
-                name="seats"
-                className="dropdown ip"
-                defaultValue={totalSeats}
-                onChange={(e) => setTotalSeats(e.target.value)}
-              >
-                <option value="1" className="ip">
-                  1
-                </option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-                <option value="6">6</option>
-              </select>
-            </div>
-          </div>
           </div>
           <div className="btn1">
             <button
