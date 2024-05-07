@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import AppNav from "../components/AppNav";
+import Footer from "../components/Footer";
 import {
   GoogleMap,
   useJsApiLoader,
@@ -70,9 +71,11 @@ const ConfirmForm = ({ onClose, ride, src, dest }) => {
     <div
       className="confirm-form"
       style={{
+        height: "max-content",
         overflow: "auto",
         wordWrap: "break-word",
         scrollbarWidth: "none",
+        textAlign: "center",
       }}
     >
       <h3
@@ -110,7 +113,7 @@ const ConfirmForm = ({ onClose, ride, src, dest }) => {
           </div>
           <div
             className="form-contact"
-            style={{ display: "inline-block", color: "black" }}
+            style={{ display: "inline-block", color: "black", marginRight: "1rem", }}
           >
             <label htmlFor="contact" style={{ color: "black" }}>
               Contact
@@ -132,7 +135,7 @@ const ConfirmForm = ({ onClose, ride, src, dest }) => {
               Offered Amount
             </label>
             <br />
-            <span style={{ marginRight: "5px", color: "black" }}>₹</span>
+            <span className="rupee" style={{ marginRight: "5px", color: "black" }}>₹</span>
             <input
               type="number"
               id="amount"
@@ -462,108 +465,60 @@ const BookRide = () => {
   return (
     <div className="bookride-container">
       <AppNav />
-      <div
-        className="loc-details"
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          marginTop: "3rem",
-        }}
-      >
-        <div
-          className="pickUp"
-          style={{
-            display: "flex",
-            width: "30%",
-            justifyContent: "flex-start",
-            alignItems: "center",
-          }}
-        >
-          <span>
-            <i
-              className="fa-solid fa-location-arrow"
-              style={{
-                display: "inline-block",
-                fontSize: "2rem",
-                marginRight: "1rem",
-              }}
-            ></i>
-          </span>
+      <div className="loc-details">
+        <div className="firstObj">
+        <div>
+        <i className="fa-solid fa-map-pin"></i>
+        </div>
+        <div className="pickUp">
           <Autocomplete>
             <input
               type="text"
               id="source"
               name="source"
+              className="ip"
               required
               ref={sourceRef}
-              style={{
-                flex: "1",
-                height: "2rem",
-                padding: "1.2rem",
-              }}
             />
           </Autocomplete>
         </div>
-        <div
-          className="drop"
-          style={{
-            display: "flex",
-            width: "30%",
-            justifyContent: "flex-start",
-            alignItems: "center",
-          }}
-        >
-          <i
-            className="fa-solid fa-location-arrow"
-            style={{
-              display: "inline-block",
-              fontSize: "2rem",
-              marginRight: "1rem",
-            }}
-          ></i>
+        </div>
+        <div className="firstObj">
+        <div>
+        <i className="fa-solid fa-location-arrow"></i>
+        </div>
+        <div className="drop">
           <Autocomplete>
             <input
               type="text"
               id="dest"
               name="dest"
+              className="ip"
               required
               ref={destRef}
-              style={{
-                flexGrow: "1",
-                height: "2rem",
-                padding: "1.2rem",
-              }}
             />
           </Autocomplete>
-          <button
-            style={{
-              padding: "0.8rem",
-              border: "none",
-              borderRadius: "1rem",
-              marginLeft: "1rem",
-            }}
+        </div>
+        </div>
+      </div>
+      <div className="buttons">
+        <button
+            className="btn"
             onClick={calculateRoute}
           >
             Search Rides
           </button>
           <button
-            style={{
-              padding: "0.8rem 1.2rem",
-              border: "none",
-              borderRadius: "1rem",
-              marginLeft: "1rem",
-            }}
+            className="btn"
             onClick={() => {
               setDirectionResponse(null);
               sourceRef.current.value = "";
               destRef.current.value = "";
             }}
           >
-            X
+            Reset
           </button>
         </div>
-      </div>
       {!isLoaded ? (
         <div>Loading....</div>
       ) : (
@@ -573,7 +528,7 @@ const BookRide = () => {
             zoom={16}
             mapContainerStyle={{
               height: "70vh",
-              width: "60vw",
+              width: "80vw",
 
               borderRadius: "2%",
               border: "1px solid antiquewhite",
@@ -638,6 +593,8 @@ const BookRide = () => {
           />
         </div>
       )}
+      <br />
+      <Footer />
     </div>
   );
 };
