@@ -8,6 +8,7 @@ const RideCard = (props) => {
       onClick={() => {
         props.handleRideClick(rideObj);
       }}
+      data-aos="flip-down"
     >
       <div className="ride-card-header">
         <div

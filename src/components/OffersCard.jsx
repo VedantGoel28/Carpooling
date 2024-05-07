@@ -4,7 +4,7 @@ import "../styles/offercard.css";
 const OffersCard = ({ offer, handleClick }) => {
   console.log(offer);
   return (
-    <div className="offer-card" onClick={() => handleClick(offer)}>
+    <div className="offer-card" onClick={() => handleClick(offer)} data-aos="zoom-in-up">
       <div className="offer-card-header">
         <div className="offer-card-username">
           <span>Rider: </span>

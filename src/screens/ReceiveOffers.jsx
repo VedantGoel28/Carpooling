@@ -4,6 +4,7 @@ import OffersCard from "../components/OffersCard";
 import { useUser } from "@clerk/clerk-react";
 import AppNav from "../components/AppNav";
 import io from "socket.io-client";
+import "../styles/offercard.css";
 
 const socket = io.connect("http://localhost:9001");
 const NegotiationForm = ({ onClose, offer, onNegotiate, onAccept }) => {
@@ -41,8 +42,9 @@ const NegotiationForm = ({ onClose, offer, onNegotiate, onAccept }) => {
       style={{
         overflow: "auto",
         wordWrap: "break-word",
-        scrollbarWidth: "none",
+        scrollbarWidth: "none", 
       }}
+      data-aos="zoom-in-up"
     >
       <h3 style={{ color: "black", textAlign: "center", marginBottom: "1rem" }}>
         Negotiate Form

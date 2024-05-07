@@ -77,6 +77,7 @@ const ConfirmForm = ({ onClose, ride, src, dest }) => {
         scrollbarWidth: "none",
         textAlign: "center",
       }}
+      data-aos="zoom-in-up"
     >
       <h3
         style={{ color: "black", textAlign: "center", marginBottom: "0.8rem" }}
@@ -466,7 +467,7 @@ const BookRide = () => {
     <div className="bookride-container">
       <AppNav />
       <div className="loc-details">
-        <div className="firstObj">
+        <div className="firstObj" data-aos="fade-left">
         <div>
         <i className="fa-solid fa-map-pin"></i>
         </div>
@@ -483,7 +484,7 @@ const BookRide = () => {
           </Autocomplete>
         </div>
         </div>
-        <div className="firstObj">
+        <div className="firstObj" data-aos="fade-right">
         <div>
         <i className="fa-solid fa-location-arrow"></i>
         </div>
@@ -501,7 +502,7 @@ const BookRide = () => {
         </div>
         </div>
       </div>
-      <div className="buttons">
+      <div className="buttons" data-aos="flip-down">
         <button
             className="btn"
             onClick={calculateRoute}
@@ -556,6 +557,7 @@ const BookRide = () => {
           fontWeight: "700",
           fontSize: "2.7rem",
         }}
+        data-aos="fade-right"
       >
         Available Rides
       </h2>
