@@ -14,6 +14,7 @@ import Success from "./screens/success";
 import Cancel from "./screens/cancel";
 import ReceiveOffers from "./screens/ReceiveOffers";
 import PastRides from "./screens/PastRides";
+import AllOfferedRides from "./screens/AllOfferedRides";
 
 function App() {
   const user = useUser();
@@ -43,6 +44,7 @@ function App() {
         element={<Success></Success>}
       />
       <Route path="/pastRides" element={<PastRides></PastRides>}></Route>
+      <Route path="/offered" element={<AllOfferedRides />}></Route>
       <Route path="*" element={<h1>404:Page not found</h1>} />
     </Routes>
   );

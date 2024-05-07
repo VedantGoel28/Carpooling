@@ -240,6 +240,9 @@ function startServer() {
                         const totalBookedSeats = acceptedAndPaid.reduce((acc, offer) => {
                             return acc + offer.passengerCount;
                         }, 0);
+                        const totalEarning = acceptedAndPaid.reduce((acc, offer) => {
+                            return acc + offer.offeredamt;
+                        });
                         console.log('Ride deactivated');
                         axios.post('http://localhost:9000/saveOfferedRide', {
                             metaid: ride.metaid,
@@ -249,7 +252,8 @@ function startServer() {
                             carName: ride.carName,
                             seatsBooked: totalBookedSeats,
                             carNumber: ride.carNumber,
-                            acceptedOffers: acceptedAndPaid
+                            acceptedOffers: acceptedAndPaid,
+                            totalEarning: totalEarning
                         })
                     }
                 }
@@ -263,7 +267,7 @@ function startServer() {
     });
 
     app.post('/saveOfferedRide', (req, res) => {
-        const { metaid, source, dest, time, seatsBooked, carName, carNumber, acceptedOffers } = req.body;
+        const { metaid, source, dest, time, seatsBooked, carName, carNumber, acceptedOffers, totalEarning } = req.body;
         User.findOne({ metaid: metaid }).then((user) => {
             user.offeredRides.push({
                 source: source,
@@ -272,7 +276,8 @@ function startServer() {
                 seatsBooked: seatsBooked,
                 carName: carName,
                 carNumber: carNumber,
-                acceptedOffers: acceptedOffers
+                acceptedOffers: acceptedOffers,
+                totalEarning: totalEarning
             });
             user.save().then(() => {
                 res.send("Offered ride saved successfully!");
@@ -282,15 +287,35 @@ function startServer() {
         })
     });
 
+    app.post('/getOfferedRides', (req, res) => {
+        const { metaid } = req.body;
+        User.findOne({ metaid: metaid }).then((user) => {
+            res.send({
+                offeredRides: user.offeredRides,
+            })
+        });
+    })
+
     app.post('/getPastRides', (req, res) => {
         const { metaid } = req.body;
-        User.findOne({ metaid: metaid }).then((response) => {
-            const rides = response.data.pastRides;
+        User.findOne({ metaid: metaid }).then((user) => {
+            const rides = user.pastRides;
             res.send(rides);
         }).catch((err) => {
             res.send(err);
         })
     });
+
+    app.post('/getOfferedRides', (req, res) => {
+        const { metaid } = req.body;
+        User.findOne({ metaid: metaid }).then((user) => {
+            const rides = user.offeredRides;
+            res.send(rides);
+        }).catch((err) => {
+            res.send(err);
+        });
+    }
+    );
 
     // app.post('/offeredRide/acceptAndPay', (req, res) => {
     //     const { metaid, userid, passengerCount } = req.body;

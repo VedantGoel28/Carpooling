@@ -12,11 +12,14 @@ const AppNav = () => {
       <div className="rightNav" style={{ display: "flex", alignItems: "center", gap: "1rem"}}>
         <div className="nav-links" data-aos="slide-right">
           <NavLink to="/offers" className="nav-link">
-            OFFERS
+            Offers
           </NavLink>
           <NavLink to="/pastRides" className="nav-link">
-            PreviousRides
+            PrevRides
           </NavLink>
+          <NavLink to="/offered" className="nav-link">
+            Offered
+            </NavLink>
         </div>
         <div className="user-button-container" data-aos="slide-right">
           <UserButton

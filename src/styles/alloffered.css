@@ -1,0 +1,13 @@
+.alloffered-card {
+    background-color: aliceblue;
+    color: black;
+    margin: 1rem;
+    margin-top: 3.4rem;
+    padding: 0.6rem;
+    border-radius: 1.2rem;
+}
+
+.ride-details {
+    display: flex;
+    justify-content: space-around;
+}
