@@ -7,6 +7,7 @@ function Success() {
   const { driverid, userid, passengerCount } = useParams();
   const navigate = useNavigate();
   useEffect(() => {
+    console.log("paid api called");
     axios
       .post("http://localhost:9000/offeredRide/paid", {
         metaid: driverid,
@@ -14,6 +15,7 @@ function Success() {
         passengerCount: passengerCount,
       })
       .then((res) => {
+        console.log("saveRide api called");
         axios.post("http://localhost:9000/saveRide", {
           metaid: userid,
           drivername: res.data.drivername,
@@ -27,7 +29,7 @@ function Success() {
       });
 
     setTimeout(() => {
-      navigate(-4, { replace: true });
+      navigate('/bookride', { replace: true });
     }, 10000);
   }, []);
 

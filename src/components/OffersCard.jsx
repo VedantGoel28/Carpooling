@@ -2,9 +2,18 @@ import React from "react";
 import "../styles/offercard.css";
 
 const OffersCard = ({ offer, handleClick }) => {
-  console.log(offer);
+  // console.log(offer);
+  const handleCardClick = () => {
+    if (!offer.accepted) {
+      handleClick(offer);
+    }
+  };
   return (
-    <div className="offer-card" onClick={() => handleClick(offer)} data-aos="zoom-in-up">
+    <div
+      className={`offer-card ${offer.accepted ? "offer-card-accepted" : ""}`}
+      onClick={handleCardClick}
+      data-aos="zoom-in-up"
+    >
       <div className="offer-card-header">
         <div className="offer-card-username">
           <span>Rider: </span>
@@ -13,6 +22,10 @@ const OffersCard = ({ offer, handleClick }) => {
         <div className="offer-card-contact">
           <span>Contact: </span>
           {offer.contact}
+        </div>
+        <div className="offer-status">
+          <span>Status: </span>
+          {offer.accepted ? "Accepted" : "Pending"}
         </div>
       </div>
       <div className="offer-card-body">

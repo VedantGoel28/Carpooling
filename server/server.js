@@ -221,7 +221,31 @@ function startServer() {
                     }
                     ride.markModified('offers'); // Mark offers array as modified
                     ride.save()
-                        .then(() => {
+                        .then(async () => {
+                            console.log('Offer accepted and paid');
+                            if (!ride.active) {
+                                const acceptedAndPaid = ride.offers.filter((offer) => {
+                                    return offer.accepted && offer.paid;
+                                });
+                                const totalBookedSeats = acceptedAndPaid.reduce((acc, offer) => {
+                                    return acc + offer.passengerCount;
+                                }, 0);
+                                const totalEarning = acceptedAndPaid.reduce((acc, offer) => {
+                                    return acc + offer.offeredamt;
+                                }, 0);
+                                console.log('Ride deactivated');
+                                await axios.post('http://localhost:9000/saveOfferedRide', {
+                                    metaid: ride.metaid,
+                                    source: ride.source,
+                                    dest: ride.dest,
+                                    time: ride.time,
+                                    carName: ride.carName,
+                                    seatsBooked: totalBookedSeats,
+                                    carNumber: ride.carNumber,
+                                    acceptedOffers: acceptedAndPaid,
+                                    totalEarning: parseInt(totalEarning)
+                                })
+                            }
                             res.send({
                                 offer: ride.offers[offerIndex],
                                 drivername: ride.driver,
@@ -231,31 +255,9 @@ function startServer() {
                         })
                         .catch((err) => {
                             res.status(500).send(err);
+                            return;
                         });
 
-                    if (!ride.active) {
-                        const acceptedAndPaid = ride.offers.filter((offer) => {
-                            return offer.accepted && offer.paid;
-                        });
-                        const totalBookedSeats = acceptedAndPaid.reduce((acc, offer) => {
-                            return acc + offer.passengerCount;
-                        }, 0);
-                        const totalEarning = acceptedAndPaid.reduce((acc, offer) => {
-                            return acc + offer.offeredamt;
-                        });
-                        console.log('Ride deactivated');
-                        axios.post('http://localhost:9000/saveOfferedRide', {
-                            metaid: ride.metaid,
-                            source: ride.source,
-                            dest: ride.dest,
-                            time: ride.time,
-                            carName: ride.carName,
-                            seatsBooked: totalBookedSeats,
-                            carNumber: ride.carNumber,
-                            acceptedOffers: acceptedAndPaid,
-                            totalEarning: totalEarning
-                        })
-                    }
                 }
 
                 else {
@@ -329,7 +331,7 @@ function startServer() {
             .catch((err) => {
                 console.error(`Failed to delete document: ${err}`);
             });
-    }, 30000);
+    }, 900000);
 
     app.listen(PORT, () => { console.log(`Listening on port ${PORT}`) });
     server.listen(9001, () => { console.log('Socket server listening on port 9001') });

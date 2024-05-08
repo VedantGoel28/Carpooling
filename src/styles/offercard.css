@@ -19,10 +19,10 @@
 
 }
 
-.offer-card:hover{
+/* .offer-card:hover{
     background: yellow;
     color: black;
-}
+} */
 
 .offer-card-header {
     display: flex;
@@ -37,32 +37,40 @@
     justify-content: space-around;
     padding: 10px;
 }
-.negotiate-form{
+
+.negotiate-form {
     width: 50vw;
     text-align: center;
     height: fit-content;
     margin-left: 0.2rem;
 }
 
+.offer-card-accepted {
+    background-color: rgba(200, 221, 175, 0.863);
+    color: black;
+    border: 1px solid black;
+}
+
 @media screen and (max-width:1430px) {
 
-    .offer-card{
+    .offer-card {
         margin: 0;
         margin-left: 3vw;
     }
-    .offer-card-body{
+
+    .offer-card-body {
         flex-direction: column;
     }
 
-    .negotiate-form{
+    .negotiate-form {
         width: 90vw;
         text-align: center;
         height: fit-content;
         margin-left: 0.2rem;
     }
 
-    .offer-negotiate-amt{
+    .offer-negotiate-amt {
         margin-right: 2rem;
     }
 
-    }
+}

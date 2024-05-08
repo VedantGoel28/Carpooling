@@ -1,8 +1,13 @@
 import React from "react";
 
-const AllOffered = ({ offeredRide }) => {
+const AllOffered = ({ offeredRide, handleClick }) => {
   return (
-    <div className="alloffered-card">
+    <div
+      className="alloffered-card"
+      onClick={() => {
+        handleClick(offeredRide);
+      }}
+    >
       <div className="ride-details">
         <div className="pickupdet">
           <span>Source:</span>
@@ -20,10 +25,10 @@ const AllOffered = ({ offeredRide }) => {
               : offeredRide.dest}
           </h4>
         </div>
-          <div className="seats-booked">
-            <span>Seats Booked:</span>
-            <h4>{offeredRide.seatsBooked}</h4>
-          </div>
+        <div className="seats-booked">
+          <span>Seats Booked:</span>
+          <h4>{offeredRide.seatsBooked}</h4>
+        </div>
         <div className="earning">
           <span>Earnings:</span>
           <h4>₹{offeredRide.totalEarning}</h4>
@@ -31,7 +36,7 @@ const AllOffered = ({ offeredRide }) => {
         <div className="time">
           <span>Time:</span>
           <h4>{offeredRide.time}</h4>
-          </div>
+        </div>
         <div className="driverCar">
           <span>Car number:</span>
           <h4>{offeredRide.carNumber}</h4>

@@ -79,7 +79,9 @@
   font-weight: bolder;
   font-size: 2.5rem;
 }
-
+.navbar .company-name:hover {
+  cursor: pointer;
+}
 /* .meta-msg Link{
     text-decoration: none;
   } */

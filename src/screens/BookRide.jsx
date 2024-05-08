@@ -119,7 +119,11 @@ const ConfirmForm = ({ onClose, ride, src, dest }) => {
           </div>
           <div
             className="form-contact"
-            style={{ display: "inline-block", color: "black", marginRight: "1rem", }}
+            style={{
+              display: "inline-block",
+              color: "black",
+              marginRight: "1rem",
+            }}
           >
             <label htmlFor="contact" style={{ color: "black" }}>
               Contact
@@ -141,7 +145,12 @@ const ConfirmForm = ({ onClose, ride, src, dest }) => {
               Offered Amount
             </label>
             <br />
-            <span className="rupee" style={{ marginRight: "5px", color: "black" }}>₹</span>
+            <span
+              className="rupee"
+              style={{ marginRight: "5px", color: "black" }}
+            >
+              ₹
+            </span>
             <input
               type="number"
               id="amount"
@@ -479,58 +488,55 @@ const BookRide = () => {
       <AppNav />
       <div className="loc-details">
         <div className="firstObj" data-aos="fade-left">
-        <div>
-        <i className="fa-solid fa-map-pin"></i>
-        </div>
-        <div className="pickUp">
-          <Autocomplete>
-            <input
-              type="text"
-              id="source"
-              name="source"
-              className="ip"
-              required
-              ref={sourceRef}
-            />
-          </Autocomplete>
-        </div>
+          <div>
+            <i className="fa-solid fa-map-pin"></i>
+          </div>
+          <div className="pickUp">
+            <Autocomplete>
+              <input
+                type="text"
+                id="source"
+                name="source"
+                className="ip"
+                required
+                ref={sourceRef}
+              />
+            </Autocomplete>
+          </div>
         </div>
         <div className="firstObj" data-aos="fade-right">
-        <div>
-        <i className="fa-solid fa-location-arrow"></i>
-        </div>
-        <div className="drop">
-          <Autocomplete>
-            <input
-              type="text"
-              id="dest"
-              name="dest"
-              className="ip"
-              required
-              ref={destRef}
-            />
-          </Autocomplete>
-        </div>
+          <div>
+            <i className="fa-solid fa-location-arrow"></i>
+          </div>
+          <div className="drop">
+            <Autocomplete>
+              <input
+                type="text"
+                id="dest"
+                name="dest"
+                className="ip"
+                required
+                ref={destRef}
+              />
+            </Autocomplete>
+          </div>
         </div>
       </div>
       <div className="buttons" data-aos="flip-down">
+        <button className="btn" onClick={calculateRoute}>
+          Search Rides
+        </button>
         <button
-            className="btn"
-            onClick={calculateRoute}
-          >
-            Search Rides
-          </button>
-          <button
-            className="btn"
-            onClick={() => {
-              setDirectionResponse(null);
-              sourceRef.current.value = "";
-              destRef.current.value = "";
-            }}
-          >
-            Reset
-          </button>
-        </div>
+          className="btn"
+          onClick={() => {
+            setDirectionResponse(null);
+            sourceRef.current.value = "";
+            destRef.current.value = "";
+          }}
+        >
+          Reset
+        </button>
+      </div>
       {!isLoaded ? (
         <div>Loading....</div>
       ) : (
@@ -575,7 +581,8 @@ const BookRide = () => {
       {filteredRides.length > 0 ? (
         <div className="ride-list">
           {filteredRides.map((ride, index) =>
-            ride.metaid !== user?.primaryWeb3Wallet?.web3Wallet ? (
+            ride.metaid !== user?.primaryWeb3Wallet?.web3Wallet &&
+            ride.availableSeats > 0 ? (
               <RideCard
                 key={index}
                 rideObj={ride}
