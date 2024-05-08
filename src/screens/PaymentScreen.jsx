@@ -12,12 +12,12 @@ function PaymentScreen() {
       ),
       fname: location.state.drivername,
       qnty: location.state.passengerCount,
-      driverid:location.state.driverid,
-      userid:location.state.userid,
-      passengerCount:location.state.passengerCount,
-      pickup:location.state.pickup,
-      drop:location.state.drop,
-      drivercontact:location.state.drivercontact,
+      driverid: location.state.driverid,
+      userid: location.state.userid,
+      passengerCount: location.state.passengerCount,
+      pickup: location.state.pickup,
+      drop: location.state.drop,
+      drivercontact: location.state.drivercontact,
     },
   ];
   const makePayment = async () => {
@@ -59,6 +59,7 @@ function PaymentScreen() {
         id="name"
         placeholder="Reciepent Name"
         className="ip"
+        defaultValue={location.state.drivername}
       />
       <button onClick={makePayment} className="submitBtn">
         Make Payment

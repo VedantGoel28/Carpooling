@@ -45,6 +45,7 @@ function App() {
       />
       <Route path="/pastRides" element={<PastRides></PastRides>}></Route>
       <Route path="/offered" element={<AllOfferedRides />}></Route>
+      <Route path="/cancel" element={<Cancel />}></Route>
       <Route path="*" element={<h1>404:Page not found</h1>} />
     </Routes>
   );

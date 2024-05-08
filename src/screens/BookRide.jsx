@@ -53,6 +53,11 @@ const ConfirmForm = ({ onClose, ride, src, dest }) => {
       alert("Not enough seats available");
       return;
     }
+
+    if (data.source == "" || data.dest == "") {
+      alert("Please enter source and destination");
+      return;
+    }
     const broadcast = socket.emit("sendoffer", data);
     axios.post("http://localhost:9000/offeredRide/updateOffers", {
       metaid: data.driver_id,
