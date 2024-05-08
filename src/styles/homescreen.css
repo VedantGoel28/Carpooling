@@ -133,6 +133,7 @@
   align-items: center;
   text-align: center;
   font-size: larger;
+  visibility: hidden;
 }
 
 /* Controls */
@@ -254,8 +255,16 @@
     text-align: center;
     margin-bottom: 2rem;
   }
+  .nav-links{
+    margin-left: 3rem;
+    margin-bottom: -1rem;
+  }
   .rightNav{
-    margin-left: 1.2rem;
+    margin-left: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+
   }
   .navbar .company-name{
     padding: 0.5rem;
