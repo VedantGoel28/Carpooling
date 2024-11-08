@@ -1,0 +1,25 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "server/server.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "server/payment.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "src/main.jsx",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    }
+  ],
+  "routes": [
+    { "src": "/api/payment", "dest": "/server/payment.js" },
+    { "src": "/api/server", "dest": "/server/server.js" }
+  ]
+}
+
