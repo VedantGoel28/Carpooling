@@ -9,7 +9,7 @@
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview --host 0.0.0.0 --port $PORT",
     "start": "nodemon ./server/server.js",
-    "start-all": "concurrently \"npm run preview\" \"node ./server/server.js\" \"node ./server/Payment.js\""
+    "start-all": "concurrently \"npm run preview -- --port 5173\" \"node ./server/server.js\" \"node ./server/Payment.js\""
   },
   "dependencies": {
     "@chakra-ui/react": "^2.8.2",
